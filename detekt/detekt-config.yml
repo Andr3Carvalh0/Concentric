@@ -1,0 +1,54 @@
+# Looking for rules? -> https://detekt.github.io/detekt/complexity.html
+formatting:
+  NoUnusedImports:
+    active: true
+    autoCorrect: true
+  NoWildcardImports:
+    active: true
+  Indentation:
+    active: false
+    autoCorrect: true
+    indentSize: 4
+    continuationIndentSize: 4
+  ParameterListWrapping:
+    active: false
+    autoCorrect: true
+    indentSize: 4
+  CommentSpacing:
+    active: false
+    autoCorrect: true
+  NoBlankLineBeforeRbrace:
+    active: false
+    autoCorrect: true
+  NoConsecutiveBlankLines:
+    active: false
+    autoCorrect: true
+  MaximumLineLength:
+    active: true
+    maxLineLength: 150
+    ignoreBackTickedIdentifier: false
+complexity:
+  TooManyFunctions:
+    thresholdInClasses: 20
+    thresholdInFiles: 20
+    thresholdInInterfaces: 20
+    thresholdInObjects: 10
+    thresholdInEnums: 5
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 10
+    ignoreDefaultParameters: false
+    ignoreDataClasses: true
+    ignoreAnnotatedParameter: [ ]
+style:
+  ReturnCount:
+    max: 3
+  UnnecessaryAbstractClass:
+    ignoreAnnotated: [ 'Module' ]
+  MaxLineLength:
+    active: true
+    maxLineLength: 150
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: false
