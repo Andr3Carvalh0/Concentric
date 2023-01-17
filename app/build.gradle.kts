@@ -14,6 +14,18 @@ android {
         versionCode = AppConfig.VERSION_CODE
         versionName = AppConfig.VERSION_NAME
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.3.2"
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -23,6 +35,10 @@ dependencies {
     implementation(Libraries.Watchface.COMPLICATIONS_KTX)
     implementation(Libraries.Watchface.COMPLICATIONS_RENDERER)
     implementation(Libraries.Watchface.EDITOR)
+    implementation(Libraries.Compose.ACTIVITY)
+    implementation(Libraries.Compose.PREVIEW)
+    implementation(Libraries.Compose.MATERIAL)
+    implementation("androidx.wear.compose:compose-foundation:1.1.1")
     implementation(Libraries.PlayServices.WEARABLE)
     implementation(Libraries.PlayServices.BASE)
 }

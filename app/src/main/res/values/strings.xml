@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Concentric+</string>
-    <string name="message">Watch face tapped</string>
+    <string name="editor_name">Editor</string>
+
+    <!-- Configurations -->
+    <string name="color_option_name">Color</string>
+    <string name="color_option_description">Select Color</string>
+    <string name="layout_option_name">Layout</string>
+    <string name="layout_option_description">Select Complication Layout</string>
+
+    <!-- Layout -->
+    <string name="layout_dial_i">DialI</string>
+    <string name="layout_dial_ii">DialII</string>
+    <string name="layout_half_dial">Half Dial I</string>
 </resources>

@@ -13,6 +13,12 @@ object Libraries {
 
     }
 
+    object Compose {
+        const val ACTIVITY = "androidx.activity:activity-compose:${Versions.COMPOSE_ACTIVITY}"
+        const val PREVIEW = "androidx.compose.ui:ui-tooling-preview:${Versions.COMPOSE_PREVIEW}"
+        const val MATERIAL = "androidx.wear.compose:compose-material:${Versions.COMPOSE}"
+    }
+
     object PlayServices {
         const val BASE = "com.google.android.gms:play-services-base:${Versions.PLAY_SERVICES_BASE}"
         const val WEARABLE = "com.google.android.gms:play-services-wearable:${Versions.PLAY_SERVICES_WEARABLE}"

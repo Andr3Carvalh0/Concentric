@@ -2,14 +2,13 @@ package pt.carvalho.concentricplus.renderer
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.Rect
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import pt.carvalho.concentricplus.renderer.clock.drawAnalogClock
 import java.time.ZonedDateTime
 
 internal class ConcentricRenderer(
@@ -46,14 +45,10 @@ internal class ConcentricRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: ConcentricRendererAssets
     ) {
-        canvas.drawText(
-            "Hello World!",
-            100f,
-            100f,
-            Paint().apply {
-                style = Paint.Style.FILL_AND_STROKE
-                color = Color.BLUE
-            }
+        canvas.drawAnalogClock(
+            bounds = bounds,
+            assets = sharedAssets,
+            time = zonedDateTime
         )
     }
 

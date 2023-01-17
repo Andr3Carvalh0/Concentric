@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="color_graphite_name">Graphite</string>
+    <string name="color_cloud_name">Cloud</string>
+    <string name="color_almond_name">Almond</string>
+    <string name="color_watermelon_name">Watermelon</string>
+    <string name="color_coral_name">Coral</string>
+    <string name="color_pomelo_name">Pomelo</string>
+    <string name="color_guava_name">Guava</string>
+    <string name="color_peach_name">Peach</string>
+    <string name="color_champagne_name">Champagne</string>
+    <string name="color_chai_name">Chai</string>
+    <string name="color_sand_name">Sand</string>
+    <string name="color_honey_name">Honey</string>
+    <string name="color_melon_name">Melon</string>
+    <string name="color_wheat_name">Wheat</string>
+    <string name="color_dandelion_name">Dandelion</string>
+    <string name="color_limoncello_name">Limoncello</string>
+    <string name="color_lemongrass_name">Lemongrass</string>
+    <string name="color_lime_name">Lime</string>
+    <string name="color_pear_name">Pear</string>
+    <string name="color_spearmint_name">Spearmint</string>
+    <string name="color_fern_name">Fern</string>
+    <string name="color_forest_name">Forest</string>
+    <string name="color_mint_name">Mint</string>
+    <string name="color_jade_name">Jade</string>
+    <string name="color_sage_name">Sage</string>
+    <string name="color_stream_name">Stream</string>
+    <string name="color_aqua_name">Aqua</string>
+    <string name="color_sky_name">Sky</string>
+    <string name="color_ocean_name">Ocean</string>
+    <string name="color_sapphire_name">Sapphire</string>
+    <string name="color_amethyst_name">Amethyst</string>
+    <string name="color_lilac_name">Lilac</string>
+    <string name="color_lavender_name">Lavander</string>
+    <string name="color_flamingo_name">Flamingo</string>
+    <string name="color_bubble_gum_name">Bubble Gum</string>
+</resources>
