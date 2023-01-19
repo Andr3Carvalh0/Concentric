@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="tick_indicator_color">#333333</color>
+    <color name="background_watch_face_color">#000000</color>
+    <color name="background_hours_color">#FFFFFF</color>
+    <color name="background_minutes_color">#5A5C62</color>
+
+    <!-- Watch face accents -->
     <color name="graphite">#949494</color>
     <color name="cloud">#E4E4E4</color>
     <color name="almond">#FCF7EB</color>

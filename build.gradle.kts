@@ -8,10 +8,21 @@ plugins {
 tasks.withType<io.gitlab.arturbosch.detekt.Detekt> { jvmTarget = "11" }
 
 detekt {
+    source = files(getAllSrcDirs())
     config = files("${rootProject.projectDir}/detekt/detekt-config.yml")
     buildUponDefaultConfig = true
 }
 
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.DETEKT}")
+}
+
+fun getAllSrcDirs(): List<File> {
+    val sourceDirs = mutableListOf<File>()
+    subprojects.forEach {
+        sourceDirs += file("${it.projectDir}/src/main/kotlin")
+        sourceDirs += file("${it.projectDir}/src/test/kotlin")
+        sourceDirs += file("${it.projectDir}/src/androidTest/kotlin")
+    }
+    return sourceDirs.filter { it.exists() }
 }

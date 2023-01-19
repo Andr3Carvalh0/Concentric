@@ -10,13 +10,13 @@ object Libraries {
         const val COMPLICATIONS_KTX = "androidx.wear.watchface:watchface-complications-data-source-ktx:${Versions.WATCHFACE}"
         const val COMPLICATIONS_RENDERER = "androidx.wear.watchface:watchface-complications-rendering:${Versions.WATCHFACE}"
         const val EDITOR = "androidx.wear.watchface:watchface-editor:${Versions.WATCHFACE}"
-
     }
 
     object Compose {
         const val ACTIVITY = "androidx.activity:activity-compose:${Versions.COMPOSE_ACTIVITY}"
         const val PREVIEW = "androidx.compose.ui:ui-tooling-preview:${Versions.COMPOSE_PREVIEW}"
         const val MATERIAL = "androidx.wear.compose:compose-material:${Versions.COMPOSE}"
+        const val FOUNDATION = "androidx.wear.compose:compose-foundation:${Versions.COMPOSE}"
     }
 
     object PlayServices {

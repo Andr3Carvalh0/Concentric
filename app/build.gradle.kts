@@ -38,7 +38,7 @@ dependencies {
     implementation(Libraries.Compose.ACTIVITY)
     implementation(Libraries.Compose.PREVIEW)
     implementation(Libraries.Compose.MATERIAL)
-    implementation("androidx.wear.compose:compose-foundation:1.1.1")
+    implementation(Libraries.Compose.FOUNDATION)
     implementation(Libraries.PlayServices.WEARABLE)
     implementation(Libraries.PlayServices.BASE)
 }

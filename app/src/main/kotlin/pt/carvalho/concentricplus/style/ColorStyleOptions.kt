@@ -1,7 +1,6 @@
 package pt.carvalho.concentricplus.style
 
 import android.content.Context
-import android.graphics.drawable.Icon
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import pt.carvalho.concentricplus.R
