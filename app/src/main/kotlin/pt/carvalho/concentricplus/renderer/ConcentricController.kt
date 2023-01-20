@@ -1,7 +1,6 @@
 package pt.carvalho.concentricplus.renderer
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.Log
@@ -98,38 +97,26 @@ internal class ConcentricController(
         textFont: Typeface,
         @ColorInt textColor: Int,
         margin: Float = 0.0f
-    ): Bitmap {
-        return Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
-            .also {
-                Canvas(it)
-                    .clockText(
-                        bounds = bounds,
-                        textSize = SMALL_FONT_SIZE,
-                        textFont = textFont,
-                        textColor = textColor,
-                        margin = margin,
-                        isInverted = true
-                    )
-            }
-    }
+    ): Bitmap = clockText(
+        bounds = bounds,
+        textSize = SMALL_FONT_SIZE,
+        textFont = textFont,
+        textColor = textColor,
+        margin = margin,
+        isInverted = true
+    )
 
     private fun ticks(
         bounds: Rect,
         @ColorInt color: Int,
         marginX: Float = 0.0f,
         marginY: Float = 0.0f
-    ): Bitmap {
-        return Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
-            .also {
-                Canvas(it)
-                    .clockTicks(
-                        bounds = bounds,
-                        ticksColor = color,
-                        marginX = marginX,
-                        marginY = marginY
-                    )
-            }
-    }
+    ): Bitmap = clockTicks(
+        bounds = bounds,
+        ticksColor = color,
+        marginX = marginX,
+        marginY = marginY
+    )
 
     private fun updateWatchFaceData(style: UserStyle) {
         Log.d("ConcentricController", "$style")

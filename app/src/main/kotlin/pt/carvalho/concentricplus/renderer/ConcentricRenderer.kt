@@ -16,8 +16,9 @@ import pt.carvalho.concentricplus.renderer.clock.ALWAYS_ON_DISPLAY_DIM
 import pt.carvalho.concentricplus.renderer.clock.LARGE_FONT_SIZE
 import pt.carvalho.concentricplus.renderer.clock.LAYOUT_ALT_CLOCK_SHIFT
 import pt.carvalho.concentricplus.renderer.clock.MEDIUM_FONT_SIZE
-import pt.carvalho.concentricplus.renderer.clock.hoursTextMask
-import pt.carvalho.concentricplus.renderer.clock.minutesTextMask
+import pt.carvalho.concentricplus.renderer.clock.drawHours
+import pt.carvalho.concentricplus.renderer.clock.drawMinutes
+import pt.carvalho.concentricplus.renderer.clock.drawSeconds
 import pt.carvalho.concentricplus.renderer.color.ColorUtilities.dim
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
 import pt.carvalho.concentricplus.utilities.color
@@ -39,6 +40,16 @@ internal class ConcentricRenderer(
     interactiveDrawModeUpdateDelayMillis = refreshRateMs,
     clearWithBackgroundTintBeforeRenderingHighlightLayer = true
 ) {
+    private val textPaint = Paint().apply {
+        isAntiAlias = true
+        typeface = font
+    }
+
+    private val bitmapPaint = Paint().apply {
+        isAntiAlias = false
+        isFilterBitmap = true
+    }
+
     override suspend fun createSharedAssets(): ConcentricRendererAssets = sharedAssets
 
     override fun renderHighlightLayer(
@@ -56,9 +67,6 @@ internal class ConcentricRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: ConcentricRendererAssets
     ) {
-        val isInAlwaysOnDisplay = isInAlwaysOnDisplay()
-        val dim = if (isInAlwaysOnDisplay) ALWAYS_ON_DISPLAY_DIM else 1.0f
-
         val translationX = when (style()) {
             ConcentricConfiguration.Style.HALF_DIAL -> LAYOUT_ALT_CLOCK_SHIFT
             else -> 0.0f
@@ -66,97 +74,64 @@ internal class ConcentricRenderer(
 
         canvas.drawColor(context.color(configuration.backgroundColorId))
 
+        val savedCanvasCount = canvas.save()
         canvas.translate(-bounds.width() * translationX, 0f)
-        canvas.drawHours(
-            dim = dim,
-            bounds = bounds,
-            zonedDateTime = zonedDateTime
-        )
-        canvas.drawMinutes(
-            dim = dim,
-            bounds = bounds,
-            zonedDateTime = zonedDateTime
-        )
-        canvas.drawSeconds(
-            bounds = bounds,
-            isInAlwaysOnDisplay = isInAlwaysOnDisplay,
-        )
+
+        drawHours(canvas, bounds, zonedDateTime)
+        drawMinutes(canvas, bounds, zonedDateTime)
+        drawSeconds(canvas, bounds, zonedDateTime)
+
+        canvas.restoreToCount(savedCanvasCount)
     }
 
     override fun onDestroy() = controller.destroy()
 
-    private fun Canvas.drawSeconds(
-        bounds: Rect,
-        isInAlwaysOnDisplay: Boolean
-    ) {
-        drawBitmap(
-            controller.secondsTicksMask(
-                bounds = bounds,
-                color = context.color(configuration.secondsTickColorId)
-            ),
-            0.0f,
-            0.0f,
-            bitmapPaint
+    private fun drawHours(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        canvas.drawHours(
+            bounds = bounds,
+            time = zonedDateTime,
+            paint = textPaint.apply {
+                color = context.color(configuration.hoursTextColorId).dim(dim())
+                textSize = bounds.height() * LARGE_FONT_SIZE
+            }
         )
-
-        if (!isInAlwaysOnDisplay) {
-            drawBitmap(
-                controller.secondsTextMask(
-                    bounds = bounds,
-                    textColor = context.color(configuration.secondsTextColorId),
-                    textFont = font
-                ),
-                0.0f,
-                0.0f,
-                bitmapPaint
-            )
-        }
     }
 
-    private fun Canvas.drawMinutes(
-        dim: Float,
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-    ) {
-        drawBitmap(
-            controller.minutesTicksMask(
-                bounds = bounds,
-                color = context.color(configuration.minutesTickColorId)
-            ),
-            0.0f,
-            0.0f,
-            bitmapPaint
-        )
-        drawBitmap(
-            controller.minutesTextMask(
+    private fun drawMinutes(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        canvas.drawMinutes(
+            bounds = bounds,
+            time = zonedDateTime,
+            minutesTextBitmap = controller.minutesTextMask(
                 bounds = bounds,
                 textColor = context.color(configuration.minutesTextColorId),
                 textFont = font
             ),
-            0.0f,
-            0.0f,
-            bitmapPaint
-        )
-        minutesTextMask(
-            bounds = bounds,
-            textSize = MEDIUM_FONT_SIZE,
-            textFont = font,
-            textColor = context.color(configuration.minutesLargeTextColorId).dim(dim),
-            time = zonedDateTime
+            minutesTickBitmap = controller.minutesTicksMask(
+                bounds = bounds,
+                color = context.color(configuration.minutesTickColorId)
+            ),
+            textPaint = textPaint.apply {
+                color = context.color(configuration.minutesLargeTextColorId).dim(dim())
+                textSize = bounds.height() * MEDIUM_FONT_SIZE
+            },
+            bitmapPaint = bitmapPaint
         )
     }
 
-    private fun Canvas.drawHours(
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-        dim: Float
-    ) {
-        hoursTextMask(
-            bounds = bounds,
+    private fun drawSeconds(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        canvas.drawSeconds(
+            isInAlwaysOnDisplay = isInAlwaysOnDisplay(),
             time = zonedDateTime,
-            textSize = LARGE_FONT_SIZE,
-            textFont = font,
-            textColor = context.color(configuration.hoursTextColorId).dim(dim)
+            secondsTickBitmap = controller.secondsTicksMask(
+                bounds = bounds,
+                color = context.color(configuration.secondsTickColorId)
+            ),
+            secondsTextBitmap = controller.secondsTextMask(
+                bounds = bounds,
+                textColor = context.color(configuration.secondsTextColorId),
+                textFont = font
+            ),
+            bitmapPaint = bitmapPaint
         )
     }
 
@@ -166,17 +141,15 @@ internal class ConcentricRenderer(
     private fun style(): ConcentricConfiguration.Style =
         configuration.style
 
+    private fun dim(): Float =
+        if (isInAlwaysOnDisplay()) ALWAYS_ON_DISPLAY_DIM else 1.0f
+
     private val sharedAssets = ConcentricRendererAssets()
 
     private val controller = ConcentricController(
         styleRepository = styleRepository,
         sharedAssets = sharedAssets
     )
-
-    private val bitmapPaint = Paint().apply {
-        isAntiAlias = false
-        isFilterBitmap = true
-    }
 
     private val font: Typeface = context.font(R.font.google_sans)
 
