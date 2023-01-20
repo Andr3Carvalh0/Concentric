@@ -9,22 +9,6 @@ import android.graphics.Typeface
 import androidx.annotation.ColorInt
 import java.time.ZonedDateTime
 
-private const val MIN_SECONDS = 0
-private const val MAX_SECONDS = 60
-
-private const val PADDING = 0.98f
-
-private const val TICKS_STROKE = 2.3f
-private const val TICKS_MAJOR_LENGTH = 0.98f
-private const val TICKS_MINOR_LENGTH = 0.99f
-
-private const val ROTATION_MODIFIER = 6.0f
-
-private const val HOUR_OFFSET = 0.14f
-private const val HALF_MODIFIER = 0.5f
-
-private const val MAJOR_MODIFIER = 5
-
 internal fun Canvas.hoursTextMask(
     bounds: Rect,
     textSize: Float,
@@ -32,27 +16,34 @@ internal fun Canvas.hoursTextMask(
     time: ZonedDateTime,
     @ColorInt textColor: Int
 ) {
-    val timeValue = "%02d".format(time.hour)
-
-    val paint = Paint()
-        .apply {
-            this.isAntiAlias = true
-            this.typeface = textFont
-            this.color = textColor
-            this.textSize = bounds.height() * textSize
-        }
-
-    val textBounds = Rect().also {
-        paint.getTextBounds(timeValue, 0, timeValue.length, it)
-    }
-
-    val x = bounds.centerX() - (textBounds.width() * (HALF_MODIFIER + HOUR_OFFSET))
-    val y = bounds.centerY() + (textBounds.height() * HALF_MODIFIER)
-
-    drawText(timeValue, x, y, paint)
+    drawLargeText(
+        bounds = bounds,
+        textSize = textSize,
+        textFont = textFont,
+        timeValue = "%02d".format(time.hour),
+        textColor = textColor,
+        xOffset = { centerX, textWidth -> centerX - (textWidth * HALF_MODIFIER) }
+    )
 }
 
-internal fun Canvas.drawClockTicks(
+internal fun Canvas.minutesTextMask(
+    bounds: Rect,
+    textSize: Float,
+    textFont: Typeface,
+    time: ZonedDateTime,
+    @ColorInt textColor: Int
+) {
+    drawLargeText(
+        bounds = bounds,
+        textSize = textSize,
+        textFont = textFont,
+        timeValue = "%02d".format(time.minute),
+        textColor = textColor,
+        xOffset = { centerX, _ -> centerX * MINUTES_X_OFFSET }
+    )
+}
+
+internal fun Canvas.clockTicks(
     bounds: Rect,
     marginX: Float,
     marginY: Float,
@@ -88,7 +79,7 @@ internal fun Canvas.drawClockTicks(
     }
 }
 
-internal fun Canvas.drawMinorClockText(
+internal fun Canvas.clockText(
     bounds: Rect,
     margin: Float,
     textSize: Float,
@@ -133,4 +124,30 @@ internal fun Canvas.drawMinorClockText(
 
         rotate(ROTATION_MODIFIER, bounds.exactCenterX(), bounds.exactCenterY())
     }
+}
+
+private fun Canvas.drawLargeText(
+    bounds: Rect,
+    textSize: Float,
+    textFont: Typeface,
+    xOffset: (Int, Int) -> Float,
+    timeValue: String,
+    @ColorInt textColor: Int
+) {
+    val paint = Paint()
+        .apply {
+            this.isAntiAlias = true
+            this.typeface = textFont
+            this.color = textColor
+            this.textSize = bounds.height() * textSize
+        }
+
+    val textBounds = Rect().also {
+        paint.getTextBounds(MAX_TEXT, 0, MAX_TEXT.length, it)
+    }
+
+    val x = xOffset(bounds.centerX(), textBounds.width())
+    val y = bounds.centerY() + (textBounds.height() * HALF_MODIFIER)
+
+    drawText(timeValue, x, y, paint)
 }
