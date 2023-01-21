@@ -6,8 +6,8 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
 import pt.carvalho.concentricplus.R
 
-private const val COLOR_STYLE = "colors"
-private const val LAYOUT_STYLE = "layout"
+internal const val COLOR_STYLE = "colors"
+internal const val LAYOUT_STYLE = "layout"
 
 private val DEFAULT_LAYERS = listOf(
     WatchFaceLayer.BASE,

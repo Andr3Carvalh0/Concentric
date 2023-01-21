@@ -34,7 +34,8 @@ class ConcentricPlusWatchFace : WatchFaceService() {
             context = context,
             surface = surfaceHolder,
             state = watchState,
-            styleRepository = currentUserStyleRepository
+            styleRepository = currentUserStyleRepository,
+            complicationSlotsManager = complicationSlotsManager
         )
     )
 }

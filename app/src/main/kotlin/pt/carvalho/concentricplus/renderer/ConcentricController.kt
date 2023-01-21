@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.Log
 import androidx.annotation.ColorInt
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import kotlinx.coroutines.CoroutineScope
@@ -12,18 +13,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import pt.carvalho.concentricplus.renderer.clock.MINUTES_TEXT_PADDING
-import pt.carvalho.concentricplus.renderer.clock.MINUTES_TICKS_PADDING
-import pt.carvalho.concentricplus.renderer.clock.SMALL_FONT_SIZE
-import pt.carvalho.concentricplus.renderer.clock.clockText
-import pt.carvalho.concentricplus.renderer.clock.clockTicks
+import pt.carvalho.concentricplus.renderer.clock.clockDialText
+import pt.carvalho.concentricplus.renderer.clock.clockDialTicks
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
 import pt.carvalho.concentricplus.renderer.data.DEFAULT
 import kotlin.math.max
 
 internal class ConcentricController(
     private val styleRepository: CurrentUserStyleRepository,
-    private val sharedAssets: ConcentricRendererAssets
+    private val sharedAssets: ConcentricRendererAssets,
+    private val complicationSlotsManager: ComplicationSlotsManager
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -32,9 +31,8 @@ internal class ConcentricController(
 
     init {
         scope.launch {
-            styleRepository.userStyle.collect { userStyle ->
-                updateWatchFaceData(userStyle)
-            }
+            styleRepository.userStyle
+                .collect { userStyle -> updateWatchFaceData(userStyle) }
         }
     }
 
@@ -45,7 +43,7 @@ internal class ConcentricController(
         @ColorInt textColor: Int,
         textFont: Typeface
     ): Bitmap {
-        sharedAssets.minutesTextMask?.let { return it }
+        sharedAssets.minutesDialTextMask?.let { return it }
 
         return text(
             bounds = bounds,
@@ -55,21 +53,21 @@ internal class ConcentricController(
                 (bounds.height() * MINUTES_TEXT_PADDING)
             ),
             textFont = textFont
-        ).also { sharedAssets.minutesTextMask = it }
+        ).also { sharedAssets.minutesDialTextMask = it }
     }
 
     fun minutesTicksMask(
         bounds: Rect,
         @ColorInt color: Int
     ): Bitmap {
-        sharedAssets.minutesTicksMask?.let { return it }
+        sharedAssets.minutesDialTicksMask?.let { return it }
 
         return ticks(
             bounds = bounds,
             color = color,
             marginX = (bounds.width() * MINUTES_TICKS_PADDING),
             marginY = (bounds.height() * MINUTES_TICKS_PADDING)
-        ).also { sharedAssets.minutesTicksMask = it }
+        ).also { sharedAssets.minutesDialTicksMask = it }
     }
 
     fun secondsTextMask(
@@ -86,10 +84,10 @@ internal class ConcentricController(
         bounds: Rect,
         @ColorInt color: Int
     ): Bitmap {
-        sharedAssets.secondsTicksMask?.let { return it }
+        sharedAssets.secondsDialTicksMask?.let { return it }
 
         return ticks(bounds = bounds, color = color)
-            .also { sharedAssets.secondsTicksMask = it }
+            .also { sharedAssets.secondsDialTicksMask = it }
     }
 
     private fun text(
@@ -97,7 +95,7 @@ internal class ConcentricController(
         textFont: Typeface,
         @ColorInt textColor: Int,
         margin: Float = 0.0f
-    ): Bitmap = clockText(
+    ): Bitmap = clockDialText(
         bounds = bounds,
         textSize = SMALL_FONT_SIZE,
         textFont = textFont,
@@ -111,7 +109,7 @@ internal class ConcentricController(
         @ColorInt color: Int,
         marginX: Float = 0.0f,
         marginY: Float = 0.0f
-    ): Bitmap = clockTicks(
+    ): Bitmap = clockDialTicks(
         bounds = bounds,
         ticksColor = color,
         marginX = marginX,

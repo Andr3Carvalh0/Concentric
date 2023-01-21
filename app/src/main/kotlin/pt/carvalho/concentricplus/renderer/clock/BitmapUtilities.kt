@@ -7,8 +7,17 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
 import androidx.annotation.ColorInt
+import pt.carvalho.concentricplus.renderer.DIAL_MAX_VALUE
+import pt.carvalho.concentricplus.renderer.DIAL_MIN_VALUE
+import pt.carvalho.concentricplus.renderer.DIAL_ROTATION_MODIFIER
+import pt.carvalho.concentricplus.renderer.DIAL_TEXT_PADDING
+import pt.carvalho.concentricplus.renderer.DIAL_TICKS_MAJOR_LENGTH
+import pt.carvalho.concentricplus.renderer.DIAL_TICKS_MINOR_LENGTH
+import pt.carvalho.concentricplus.renderer.DIAL_TICKS_STROKE
+import pt.carvalho.concentricplus.renderer.HALF_MODIFIER
+import pt.carvalho.concentricplus.renderer.MAJOR_MODIFIER
 
-internal fun clockTicks(
+internal fun clockDialTicks(
     bounds: Rect,
     marginX: Float,
     marginY: Float,
@@ -18,7 +27,7 @@ internal fun clockTicks(
         .apply {
             isAntiAlias = true
             strokeCap = Paint.Cap.ROUND
-            strokeWidth = TICKS_STROKE
+            strokeWidth = DIAL_TICKS_STROKE
             color = ticksColor
         }
 
@@ -32,9 +41,9 @@ internal fun clockTicks(
     return Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
         .also {
             with(Canvas(it)) {
-                (MIN_SECONDS until MAX_SECONDS).forEach { value ->
+                (DIAL_MIN_VALUE until DIAL_MAX_VALUE).forEach { value ->
                     val isMajorValue = value % MAJOR_MODIFIER == 0
-                    val tickLength = if (isMajorValue) TICKS_MAJOR_LENGTH else TICKS_MINOR_LENGTH
+                    val tickLength = if (isMajorValue) DIAL_TICKS_MAJOR_LENGTH else DIAL_TICKS_MINOR_LENGTH
 
                     drawLine(
                         transformedBounds.width().toFloat() * tickLength,
@@ -44,7 +53,7 @@ internal fun clockTicks(
                         ticksPaint
                     )
                     rotate(
-                        ROTATION_MODIFIER,
+                        DIAL_ROTATION_MODIFIER,
                         transformedBounds.exactCenterX(),
                         transformedBounds.exactCenterY()
                     )
@@ -53,7 +62,7 @@ internal fun clockTicks(
         }
 }
 
-internal fun clockText(
+internal fun clockDialText(
     bounds: Rect,
     margin: Float,
     textSize: Float,
@@ -70,14 +79,14 @@ internal fun clockText(
     return Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
         .also {
             with(Canvas(it)) {
-                (MIN_SECONDS until MAX_SECONDS).forEach { value ->
+                (DIAL_MIN_VALUE until DIAL_MAX_VALUE).forEach { value ->
                     val isMajorValue = value % MAJOR_MODIFIER == 0
-                    val textValue = (MAX_SECONDS - value)
+                    val textValue = (DIAL_MAX_VALUE - value)
                         .let { seconds -> if (isInverted) seconds else value }
-                        .let { seconds -> if (seconds == MAX_SECONDS) 0 else seconds }
+                        .let { seconds -> if (seconds == DIAL_MAX_VALUE) 0 else seconds }
                         .let { seconds -> "%02d".format(seconds) }
 
-                    val padding = if (isMajorValue) PADDING else 0.0f
+                    val padding = if (isMajorValue) DIAL_TEXT_PADDING else 0.0f
                     val fontSize = if (isMajorValue) textSize else 0.0f
 
                     paint.color = if (isMajorValue) textColor else Color.TRANSPARENT
@@ -88,11 +97,11 @@ internal fun clockText(
 
                     val x = bounds.centerX() - (textBounds.width() * HALF_MODIFIER)
                     val y = bounds.height() * (1.0f - padding) + margin +
-                        textBounds.height() + ROTATION_MODIFIER
+                        textBounds.height() + DIAL_ROTATION_MODIFIER
 
                     save()
                     rotate(
-                        -value * ROTATION_MODIFIER,
+                        -value * DIAL_ROTATION_MODIFIER,
                         x + textBounds.width().toFloat() * HALF_MODIFIER,
                         y - textBounds.height().toFloat() * HALF_MODIFIER
                     )
@@ -100,7 +109,7 @@ internal fun clockText(
                     drawText(textValue, x, y, paint)
                     restore()
 
-                    rotate(ROTATION_MODIFIER, bounds.exactCenterX(), bounds.exactCenterY())
+                    rotate(DIAL_ROTATION_MODIFIER, bounds.exactCenterX(), bounds.exactCenterY())
                 }
             }
         }

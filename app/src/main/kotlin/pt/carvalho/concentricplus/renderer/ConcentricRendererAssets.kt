@@ -5,17 +5,17 @@ import androidx.wear.watchface.Renderer
 
 internal class ConcentricRendererAssets : Renderer.SharedAssets {
 
-    var minutesTextMask: Bitmap? = null
-    var minutesTicksMask: Bitmap? = null
-    var secondsTicksMask: Bitmap? = null
+    var minutesDialTextMask: Bitmap? = null
+    var minutesDialTicksMask: Bitmap? = null
+    var secondsDialTicksMask: Bitmap? = null
 
     override fun onDestroy() {
-        minutesTextMask?.recycle()
-        minutesTicksMask?.recycle()
-        secondsTicksMask?.recycle()
+        minutesDialTextMask?.recycle()
+        minutesDialTicksMask?.recycle()
+        secondsDialTicksMask?.recycle()
 
-        minutesTextMask = null
-        minutesTicksMask = null
-        secondsTicksMask = null
+        minutesDialTextMask = null
+        minutesDialTicksMask = null
+        secondsDialTicksMask = null
     }
 }
