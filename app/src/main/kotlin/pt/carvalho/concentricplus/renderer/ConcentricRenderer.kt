@@ -5,6 +5,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.fonts.FontStyle.FONT_WEIGHT_LIGHT
+import android.graphics.fonts.FontStyle.FONT_WEIGHT_MEDIUM
+import android.graphics.fonts.FontStyle.FONT_WEIGHT_THIN
 import android.view.SurfaceHolder
 import androidx.core.graphics.withScale
 import androidx.wear.watchface.CanvasType
@@ -20,11 +23,11 @@ import pt.carvalho.concentricplus.renderer.clock.drawBorder
 import pt.carvalho.concentricplus.renderer.clock.drawHours
 import pt.carvalho.concentricplus.renderer.clock.drawMinutes
 import pt.carvalho.concentricplus.renderer.clock.drawSeconds
-import pt.carvalho.concentricplus.renderer.color.ColorUtilities.dim
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration.Style.HALF_DIAL
 import pt.carvalho.concentricplus.utilities.color
-import pt.carvalho.concentricplus.utilities.font
+import pt.carvalho.concentricplus.utilities.restoreToCountAfter
+import pt.carvalho.concentricplus.utilities.typeface
 import java.time.ZonedDateTime
 
 internal class ConcentricRenderer(
@@ -47,27 +50,50 @@ internal class ConcentricRenderer(
 
     private val controller = ConcentricController(
         styleRepository = styleRepository,
-        sharedAssets = sharedAssets,
         complicationSlotsManager = complicationSlotsManager
     )
 
-    private val font: Typeface = context.font(R.font.google_sans)
+    private val font: Typeface = context.typeface(R.font.product_sans)
+    private val alternativeFont: Typeface = context.typeface(R.font.product_sans_medium_alt)
 
     private val configuration: ConcentricConfiguration = controller.configuration
 
-    private val textPaint = Paint().apply {
-        isAntiAlias = true
-        typeface = font
+    private val textPaint by lazy {
+        Paint().apply {
+            isAntiAlias = true
+        }
     }
 
-    private val borderPaint = Paint().apply {
-        isAntiAlias = true
-        typeface = font
-        style = Paint.Style.STROKE
+    private val borderPaint by lazy {
+        Paint().apply {
+            isAntiAlias = true
+            typeface = typeface(FONT_WEIGHT_MEDIUM)
+            style = Paint.Style.STROKE
+        }
     }
 
-    private val bitmapPaint = Paint().apply {
-        isFilterBitmap = true
+    private val dialTicksPaint by lazy {
+        Paint().apply {
+            isAntiAlias = true
+            strokeCap = Paint.Cap.ROUND
+            typeface = typeface(FONT_WEIGHT_THIN)
+            strokeWidth = DIAL_TICKS_STROKE
+        }
+    }
+
+    private val dialTextPaint by lazy {
+        Paint().apply {
+            isAntiAlias = true
+            typeface = typeface(FONT_WEIGHT_MEDIUM)
+        }
+    }
+
+    private val backgroundPaint by lazy {
+        Paint().apply {
+            style = Paint.Style.FILL
+            isAntiAlias = true
+            typeface = typeface(FONT_WEIGHT_LIGHT)
+        }
     }
 
     private var lastComplicationColorId: Int = -1
@@ -100,22 +126,20 @@ internal class ConcentricRenderer(
         }
 
         val scale = when {
-            isInAlwaysOnDisplay() -> ALWAYS_ON_DISPLAY_SCALE_FACTOR
+            isInAlwaysOnDisplay() && style() != HALF_DIAL -> ALWAYS_ON_DISPLAY_SCALE_FACTOR
             else -> DEFAULT_SCALE_FACTOR
         }
 
         canvas.drawColor(context.color(configuration.backgroundColorId))
 
         canvas.withScale(scale, scale, bounds.exactCenterX(), bounds.exactCenterY()) {
-            canvas.save().run {
+            canvas.restoreToCountAfter {
                 canvas.translate(-bounds.width() * translationX, 0f)
 
-                drawHours(canvas, bounds, zonedDateTime)
                 drawMinutes(canvas, bounds, zonedDateTime)
                 drawSeconds(canvas, bounds, zonedDateTime)
+                drawHours(canvas, bounds, zonedDateTime)
                 drawBorder(canvas, bounds)
-
-                canvas.restoreToCount(this)
             }
         }
 
@@ -129,8 +153,9 @@ internal class ConcentricRenderer(
             bounds = bounds,
             time = zonedDateTime,
             paint = textPaint.apply {
-                color = context.color(configuration.hoursTextColorId).dim(dim())
+                color = context.color(configuration.hoursTextColorId)
                 textSize = bounds.height() * LARGE_FONT_SIZE
+                typeface = alternativeFont
             }
         )
     }
@@ -139,37 +164,38 @@ internal class ConcentricRenderer(
         canvas.drawMinutes(
             bounds = bounds,
             time = zonedDateTime,
-            minutesTextBitmap = controller.minutesTextMask(
-                bounds = bounds,
-                textColor = context.color(configuration.minutesDialTextColorId),
-                textFont = font
-            ),
-            minutesTickBitmap = controller.minutesTicksMask(
-                bounds = bounds,
+            isInAlwaysOnDisplay = isInAlwaysOnDisplay(),
+            ticksPaint = dialTicksPaint.apply {
                 color = context.color(configuration.minutesDialTickColorId)
-            ),
-            textPaint = textPaint.apply {
-                color = context.color(configuration.minutesTextColorId).dim(dim())
-                textSize = bounds.height() * MEDIUM_FONT_SIZE
             },
-            bitmapPaint = bitmapPaint
+            dialTextPaint = dialTextPaint.apply {
+                color = context.color(configuration.minutesDialTextColorId)
+                textSize = bounds.height() * XSMALL_FONT_SIZE
+            },
+            textPaint = textPaint.apply {
+                color = context.color(configuration.minutesTextColorId)
+                textSize = bounds.height() * MEDIUM_FONT_SIZE
+                typeface = alternativeFont
+            },
+            backgroundPaint = backgroundPaint.apply {
+                color = context.color(configuration.backgroundColorId)
+                textSize = bounds.height() * LARGE_FONT_SIZE
+            }
         )
     }
 
     private fun drawSeconds(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         canvas.drawSeconds(
+            bounds = bounds,
             isInAlwaysOnDisplay = isInAlwaysOnDisplay(),
             time = zonedDateTime,
-            secondsTickBitmap = controller.secondsTicksMask(
-                bounds = bounds,
+            ticksPaint = dialTicksPaint.apply {
                 color = context.color(configuration.secondsDialTickColorId)
-            ),
-            secondsTextBitmap = controller.secondsTextMask(
-                bounds = bounds,
-                textColor = context.color(configuration.secondsDialTextColorId),
-                textFont = font
-            ),
-            bitmapPaint = bitmapPaint
+            },
+            textPaint = dialTextPaint.apply {
+                color = context.color(configuration.secondsDialTextColorId)
+                textSize = bounds.height() * SMALL_FONT_SIZE
+            }
         )
     }
 
@@ -179,7 +205,7 @@ internal class ConcentricRenderer(
             isInAlwaysOnDisplay = isInAlwaysOnDisplay(),
             isHalfCircle = configuration.style == HALF_DIAL,
             paint = borderPaint.apply {
-                color = context.color(configuration.borderColorId).dim(dim())
+                color = context.color(configuration.borderColorId)
                 textSize = bounds.height() * BORDER_SIZE
                 strokeWidth = when {
                     isInAlwaysOnDisplay() -> BORDER_THICKNESS_ALWAYS_ON_DISPLAY
@@ -210,8 +236,7 @@ internal class ConcentricRenderer(
     private fun style(): ConcentricConfiguration.Style =
         configuration.style
 
-    private fun dim(): Float =
-        if (isInAlwaysOnDisplay()) ALWAYS_ON_DISPLAY_DIM else 1.0f
+    private fun typeface(weight: Int): Typeface = Typeface.create(font, weight, false)
 
     companion object {
         internal const val DEFAULT_CANVAS_TYPE = CanvasType.HARDWARE

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="tick_indicator_color">#333333</color>
+    <color name="tick_indicator_color">#45474B</color>
     <color name="background_watch_face_color">#000000</color>
     <color name="background_focused_text_color">#FFFFFF</color>
-    <color name="background_unfocused_text_color">#5A5C62</color>
+    <color name="background_unfocused_text_color">#6D7177</color>
 
     <!-- Watch face accents -->
     <color name="graphite">#949494</color>

@@ -7,4 +7,4 @@ import androidx.annotation.FontRes
 
 internal fun Context.color(@ColorRes id: Int): Int = getColor(id)
 
-internal fun Context.font(@FontRes id: Int): Typeface = resources.getFont(id)
+internal fun Context.typeface(@FontRes id: Int): Typeface = resources.getFont(id)
