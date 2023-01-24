@@ -33,7 +33,6 @@ dependencies {
     implementation(Libraries.Watchface.MAIN)
     implementation(Libraries.Watchface.COMPLICATIONS)
     implementation(Libraries.Watchface.COMPLICATIONS_KTX)
-    implementation(Libraries.Watchface.COMPLICATIONS_RENDERER)
     implementation(Libraries.Watchface.EDITOR)
     implementation(Libraries.Compose.ACTIVITY)
     implementation(Libraries.Compose.PREVIEW)

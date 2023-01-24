@@ -8,7 +8,6 @@ object Libraries {
         const val MAIN = "androidx.wear.watchface:watchface:${Versions.WATCHFACE}"
         const val COMPLICATIONS = "androidx.wear.watchface:watchface-complications-data-source:${Versions.WATCHFACE}"
         const val COMPLICATIONS_KTX = "androidx.wear.watchface:watchface-complications-data-source-ktx:${Versions.WATCHFACE}"
-        const val COMPLICATIONS_RENDERER = "androidx.wear.watchface:watchface-complications-rendering:${Versions.WATCHFACE}"
         const val EDITOR = "androidx.wear.watchface:watchface-editor:${Versions.WATCHFACE}"
     }
 

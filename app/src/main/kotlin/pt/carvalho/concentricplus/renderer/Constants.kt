@@ -41,6 +41,21 @@ internal const val BORDER_CLEAR_AREA_RECT_BOTTOM = 0.585f
 internal const val DEFAULT_SCALE_FACTOR = 1.0f
 internal const val ALWAYS_ON_DISPLAY_SCALE_FACTOR = 0.95f
 
+internal const val TOP_COMPLICATION_TOP_BOUND = 0.09f
+internal const val TOP_COMPLICATION_BOTTOM_BOUND = 0.33f
+internal const val TOP_COMPLICATION_LEFT_BOUND = 0.60f
+internal const val TOP_COMPLICATION_RIGHT_BOUND = 0.84f
+
+internal const val MIDDLE_COMPLICATION_TOP_BOUND = 0.38f
+internal const val MIDDLE_COMPLICATION_BOTTOM_BOUND = 0.62f
+internal const val MIDDLE_COMPLICATION_LEFT_BOUND = 0.70f
+internal const val MIDDLE_COMPLICATION_RIGHT_BOUND = 0.94f
+
+internal const val BOTTOM_COMPLICATION_TOP_BOUND = 0.68f
+internal const val BOTTOM_COMPLICATION_BOTTOM_BOUND = 0.92f
+internal const val BOTTOM_COMPLICATION_LEFT_BOUND = 0.60f
+internal const val BOTTOM_COMPLICATION_RIGHT_BOUND = 0.84f
+
 internal const val TEXT_ALIGNMENT_FACTOR = 0.025f
 internal const val MAX_TEXT = "88"
 

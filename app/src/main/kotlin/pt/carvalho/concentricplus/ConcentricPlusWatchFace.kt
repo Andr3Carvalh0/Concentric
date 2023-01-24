@@ -1,6 +1,5 @@
 package pt.carvalho.concentricplus
 
-import android.content.Context
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.WatchFace
@@ -15,13 +14,14 @@ import pt.carvalho.concentricplus.style.ConcentricStyleSchema
 
 class ConcentricPlusWatchFace : WatchFaceService() {
 
-    private val context: Context by lazy { applicationContext }
-
-    override fun createUserStyleSchema(): UserStyleSchema = ConcentricStyleSchema.create(context)
+    override fun createUserStyleSchema(): UserStyleSchema = ConcentricStyleSchema.create(this)
 
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): ComplicationSlotsManager = ConcentricComplicationsManager.create(currentUserStyleRepository)
+    ): ComplicationSlotsManager = ConcentricComplicationsManager.create(
+        context = this,
+        repository = currentUserStyleRepository
+    )
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -31,7 +31,7 @@ class ConcentricPlusWatchFace : WatchFaceService() {
     ): WatchFace = WatchFace(
         watchFaceType = WatchFaceType.DIGITAL,
         renderer = ConcentricRenderer(
-            context = context,
+            context = this,
             surface = surfaceHolder,
             state = watchState,
             styleRepository = currentUserStyleRepository,

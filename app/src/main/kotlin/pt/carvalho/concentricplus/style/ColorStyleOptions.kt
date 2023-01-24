@@ -1,13 +1,20 @@
 package pt.carvalho.concentricplus.style
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Icon
+import androidx.annotation.ColorRes
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import pt.carvalho.concentricplus.R
+import pt.carvalho.concentricplus.utilities.color
+
+private const val ICON_PREVIEW_SIZE = 192
 
 internal object ColorStyleOptions {
 
-    private val colors = mapOf(
+    internal val colors = mapOf(
         R.string.color_graphite_name to R.color.graphite, R.string.color_cloud_name to R.color.cloud,
         R.string.color_almond_name to R.color.almond, R.string.color_watermelon_name to R.color.watermelon,
         R.string.color_coral_name to R.color.coral, R.string.color_pomelo_name to R.color.pomelo,
@@ -28,13 +35,26 @@ internal object ColorStyleOptions {
         R.string.color_bubble_gum_name to R.color.bubble_gum
     )
 
+    private fun iconPreview(
+        context: Context,
+        @ColorRes color: Int
+    ): Icon {
+        val bitmap = Bitmap.createBitmap(ICON_PREVIEW_SIZE, ICON_PREVIEW_SIZE, Bitmap.Config.ARGB_8888)
+
+        Canvas(bitmap).also {
+            it.drawColor(context.color(color))
+        }
+
+        return Icon.createWithBitmap(bitmap)
+    }
+
     fun options(context: Context): List<ListOption> {
         return colors.map { entry ->
             ListOption(
                 id = UserStyleSetting.Option.Id("${entry.key}"),
                 resources = context.resources,
                 displayNameResourceId = entry.key,
-                icon = null
+                icon = iconPreview(context, entry.value)
             )
         }
     }
