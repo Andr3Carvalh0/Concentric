@@ -7,18 +7,21 @@ import pt.carvalho.concentricplus.R
 
 internal object LayoutOptions {
 
-    private val options = listOf(
-        R.string.layout_dial_i,
-        R.string.layout_dial_ii,
-        R.string.layout_half_dial
+    internal val options = mapOf(
+        R.string.layout_dial_i to R.drawable.preview_analog,
+        R.string.layout_dial_ii to R.drawable.preview_analog,
+        R.string.layout_half_dial to R.drawable.preview_analog
     )
 
+    internal fun index(entry: Map.Entry<Int, Int>): String =
+        "${options.keys.indexOf(entry.key)}"
+
     fun options(context: Context): List<ListOption> =
-        options.map { resId ->
+        options.map { entry ->
             ListOption(
-                id = UserStyleSetting.Option.Id("$resId"),
+                id = UserStyleSetting.Option.Id(index(entry)),
                 resources = context.resources,
-                displayNameResourceId = resId,
+                displayNameResourceId = entry.key,
                 icon = null
             )
         }

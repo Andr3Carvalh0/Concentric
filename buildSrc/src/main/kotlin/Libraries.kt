@@ -18,6 +18,10 @@ object Libraries {
         const val FOUNDATION = "androidx.wear.compose:compose-foundation:${Versions.COMPOSE}"
     }
 
+    object Accompanist {
+        const val PAGER = "com.google.accompanist:accompanist-pager:${Versions.ACCOMPANIST}"
+    }
+
     object PlayServices {
         const val BASE = "com.google.android.gms:play-services-base:${Versions.PLAY_SERVICES_BASE}"
         const val WEARABLE = "com.google.android.gms:play-services-wearable:${Versions.PLAY_SERVICES_WEARABLE}"

@@ -4,6 +4,7 @@
     <color name="background_watch_face_color">#000000</color>
     <color name="background_focused_text_color">@color/white</color>
     <color name="background_unfocused_text_color">#6D7177</color>
+    <color name="complication_highlight">#92000000</color>
 
     <color name="grey">#45474B</color>
     <color name="white">#FFFFFF</color>

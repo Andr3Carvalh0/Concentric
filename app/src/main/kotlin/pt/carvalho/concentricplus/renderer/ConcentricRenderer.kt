@@ -15,6 +15,8 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import pt.carvalho.concentricplus.R
 import pt.carvalho.concentricplus.renderer.clock.drawBorder
@@ -22,6 +24,7 @@ import pt.carvalho.concentricplus.renderer.clock.drawHours
 import pt.carvalho.concentricplus.renderer.clock.drawMinutes
 import pt.carvalho.concentricplus.renderer.clock.drawSeconds
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
+import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration.Style.DIAL_II
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration.Style.HALF_DIAL
 import pt.carvalho.concentricplus.utilities.color
 import pt.carvalho.concentricplus.utilities.restoreToCountAfter
@@ -54,7 +57,11 @@ internal class ConcentricRenderer(
     private val font: Typeface = context.typeface(R.font.product_sans)
     private val alternativeFont: Typeface = context.typeface(R.font.product_sans_medium_alt)
 
-    private val configuration: ConcentricConfiguration = controller.configuration
+    private val configuration: ConcentricConfiguration
+        get() = controller.configuration
+
+    private val style: ConcentricConfiguration.Style
+        get() = configuration.style
 
     private val textPaint by lazy {
         Paint().apply {
@@ -118,13 +125,13 @@ internal class ConcentricRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: ConcentricRendererAssets
     ) {
-        val translationX = when (style()) {
+        val translationX = when (style) {
             HALF_DIAL -> LAYOUT_ALT_CLOCK_SHIFT
             else -> 0.0f
         }
 
         val scale = when {
-            isInAlwaysOnDisplay() && style() != HALF_DIAL -> ALWAYS_ON_DISPLAY_SCALE_FACTOR
+            isInAlwaysOnDisplay() && style != HALF_DIAL -> ALWAYS_ON_DISPLAY_SCALE_FACTOR
             else -> DEFAULT_SCALE_FACTOR
         }
 
@@ -158,7 +165,11 @@ internal class ConcentricRenderer(
         )
     }
 
-    private fun drawMinutes(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+    private fun drawMinutes(
+        canvas: Canvas,
+        bounds: Rect,
+        zonedDateTime: ZonedDateTime
+    ) {
         canvas.drawMinutes(
             bounds = bounds,
             time = zonedDateTime,
@@ -178,7 +189,8 @@ internal class ConcentricRenderer(
             backgroundPaint = backgroundPaint.apply {
                 color = context.color(configuration.backgroundColorId)
                 textSize = bounds.height() * LARGE_FONT_SIZE
-            }
+            },
+            hasTicks = style != DIAL_II
         )
     }
 
@@ -193,7 +205,8 @@ internal class ConcentricRenderer(
             textPaint = dialTextPaint.apply {
                 color = context.color(configuration.secondsDialTextColorId)
                 textSize = bounds.height() * SMALL_FONT_SIZE
-            }
+            },
+            hasTicks = style != DIAL_II
         )
     }
 
@@ -216,8 +229,8 @@ internal class ConcentricRenderer(
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         configuration.complications.forEach { complication ->
             if (configuration.complicationsTintColorId != lastComplicationColorId) {
-/*                ComplicationDrawable.getDrawable(context, configuration.complicationsTintColorId)
-                    ?.let { (complication.renderer as? CanvasComplicationDrawable)?.drawable = it }*/
+                ComplicationDrawable.getDrawable(context, configuration.complicationsTintColorId)
+                    ?.let { (complication.renderer as? CanvasComplicationDrawable)?.drawable = it }
             }
 
             if (complication.enabled) complication.render(canvas, zonedDateTime, renderParameters)
@@ -230,9 +243,6 @@ internal class ConcentricRenderer(
 
     private fun isInAlwaysOnDisplay(): Boolean =
         renderParameters.drawMode == DrawMode.AMBIENT
-
-    private fun style(): ConcentricConfiguration.Style =
-        configuration.style
 
     private fun typeface(weight: Int): Typeface = Typeface.create(font, weight, false)
 

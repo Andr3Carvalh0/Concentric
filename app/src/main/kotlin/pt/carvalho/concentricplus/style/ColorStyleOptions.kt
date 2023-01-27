@@ -48,10 +48,13 @@ internal object ColorStyleOptions {
         return Icon.createWithBitmap(bitmap)
     }
 
+    internal fun index(entry: Map.Entry<Int, Int>): String =
+        "${colors.keys.indexOf(entry.key)}"
+
     fun options(context: Context): List<ListOption> {
         return colors.map { entry ->
             ListOption(
-                id = UserStyleSetting.Option.Id("${entry.key}"),
+                id = UserStyleSetting.Option.Id(index(entry)),
                 resources = context.resources,
                 displayNameResourceId = entry.key,
                 icon = iconPreview(context, entry.value)

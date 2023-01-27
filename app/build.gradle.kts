@@ -37,6 +37,7 @@ dependencies {
     implementation(Libraries.Compose.ACTIVITY)
     implementation(Libraries.Compose.PREVIEW)
     implementation(Libraries.Compose.MATERIAL)
+    implementation(Libraries.Accompanist.PAGER)
     implementation(Libraries.Compose.FOUNDATION)
     implementation(Libraries.PlayServices.WEARABLE)
     implementation(Libraries.PlayServices.BASE)

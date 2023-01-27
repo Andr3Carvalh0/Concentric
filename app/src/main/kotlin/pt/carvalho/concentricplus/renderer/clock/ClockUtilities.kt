@@ -52,6 +52,7 @@ internal fun Canvas.drawMinutes(
     ticksPaint: Paint,
     dialTextPaint: Paint,
     textPaint: Paint,
+    hasTicks: Boolean,
     backgroundPaint: Paint
 ) {
     restoreToCountAfter {
@@ -71,6 +72,7 @@ internal fun Canvas.drawMinutes(
             marginY = (bounds.height() * MINUTES_TICKS_PADDING),
             ticksPaint = ticksPaint,
             textPaint = dialTextPaint,
+            hasTicks = hasTicks,
             rotationDegrees = { calculateDegrees(0) },
             textRotationDegrees = calculateDegrees,
             beforeTicksDrawn = {
@@ -96,6 +98,7 @@ internal fun Canvas.drawSeconds(
     isInAlwaysOnDisplay: Boolean,
     ticksPaint: Paint,
     textPaint: Paint,
+    hasTicks: Boolean,
     time: ZonedDateTime
 ) {
     restoreToCountAfter {
@@ -118,6 +121,7 @@ internal fun Canvas.drawSeconds(
             },
             hasText = !isInAlwaysOnDisplay,
             ticksPaint = ticksPaint,
+            hasTicks = hasTicks,
             textPaint = textPaint
         )
     }
@@ -185,6 +189,7 @@ private fun Canvas.dial(
     textRotationDegrees: (Int) -> Float,
     beforeTicksDrawn: () -> Unit = { },
     hasText: Boolean = true,
+    hasTicks: Boolean = true,
     ticksPaint: Paint,
     textPaint: Paint
 ) {
@@ -207,11 +212,13 @@ private fun Canvas.dial(
 
     beforeTicksDrawn()
 
-    drawDialTicks(
-        bounds = transformedBounds,
-        rotationDegrees = rotationDegrees,
-        paint = ticksPaint
-    )
+    if (hasTicks) {
+        drawDialTicks(
+            bounds = transformedBounds,
+            rotationDegrees = rotationDegrees,
+            paint = ticksPaint
+        )
+    }
 }
 
 private fun Canvas.drawDialTicks(

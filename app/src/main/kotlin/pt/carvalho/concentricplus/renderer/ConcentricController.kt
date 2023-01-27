@@ -1,6 +1,6 @@
 package pt.carvalho.concentricplus.renderer
 
-import android.util.Log
+import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
@@ -8,12 +8,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
 import pt.carvalho.concentricplus.renderer.data.DEFAULT
-import pt.carvalho.concentricplus.style.COLOR_STYLE
-import pt.carvalho.concentricplus.style.ColorStyleOptions
-import pt.carvalho.concentricplus.style.LAYOUT_STYLE
+import pt.carvalho.concentricplus.utilities.selectedColorValue
+import pt.carvalho.concentricplus.utilities.selectedLayoutValue
 
 internal class ConcentricController(
     private val styleRepository: CurrentUserStyleRepository,
@@ -25,12 +25,11 @@ internal class ConcentricController(
     var configuration: ConcentricConfiguration = DEFAULT
 
     init {
-        configuration = configuration.copy(
-            complications = complicationSlotsManager.complicationSlots.entries.map { it.value }
-        )
-
-        scope.launch {
+        scope.launch(Dispatchers.Main.immediate) {
             styleRepository.userStyle
+                .onStart {
+                    configuration = configuration.copy(complications = complications())
+                }
                 .collect { userStyle -> updateWatchFaceData(userStyle) }
         }
     }
@@ -38,28 +37,24 @@ internal class ConcentricController(
     fun destroy() = scope.cancel()
 
     private fun updateWatchFaceData(style: UserStyle) {
-        var updatedConfiguration = configuration
-
-        style.forEach { (setting, option) ->
-            when (setting.id.value) {
-                COLOR_STYLE -> {
-                    ColorStyleOptions.colors[option.id.toString().toInt()]
-                        ?.let { color ->
-                            updatedConfiguration = updatedConfiguration.copy(
-                                secondsDialTextColorId = color,
-                                borderColorId = color
-                            )
-                        }
-                }
-                LAYOUT_STYLE -> {
-                }
-                else ->
-                    Log.d("ConcentricController", "Unknown style setting ${setting.id.value}")
+        val updatedConfiguration = configuration.copy(
+            secondsDialTextColorId = style.selectedColorValue(),
+            borderColorId = style.selectedColorValue(),
+            complicationsTintColorId = style.selectedColorValue(),
+            style = style.selectedLayoutValue(),
+            complications = when (style.selectedLayoutValue()) {
+                ConcentricConfiguration.Style.HALF_DIAL -> complications()
+                else -> emptyList()
             }
-        }
+        )
 
         if (updatedConfiguration != configuration) {
-            configuration = updatedConfiguration
+            configuration = updatedConfiguration.copy(
+                complications = emptyList()
+            )
         }
     }
+
+    private fun complications(): List<ComplicationSlot> =
+        complicationSlotsManager.complicationSlots.entries.map { it.value }
 }

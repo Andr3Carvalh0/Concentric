@@ -1,4 +1,8 @@
+@file:Suppress("MagicNumber")
+
 package pt.carvalho.concentricplus.renderer
+
+import android.graphics.RectF
 
 internal const val LARGE_FONT_SIZE = 0.215f
 internal const val MEDIUM_FONT_SIZE = 0.102f
@@ -41,20 +45,9 @@ internal const val BORDER_CLEAR_AREA_RECT_BOTTOM = 0.585f
 internal const val DEFAULT_SCALE_FACTOR = 1.0f
 internal const val ALWAYS_ON_DISPLAY_SCALE_FACTOR = 0.95f
 
-internal const val TOP_COMPLICATION_TOP_BOUND = 0.09f
-internal const val TOP_COMPLICATION_BOTTOM_BOUND = 0.33f
-internal const val TOP_COMPLICATION_LEFT_BOUND = 0.60f
-internal const val TOP_COMPLICATION_RIGHT_BOUND = 0.84f
-
-internal const val MIDDLE_COMPLICATION_TOP_BOUND = 0.38f
-internal const val MIDDLE_COMPLICATION_BOTTOM_BOUND = 0.62f
-internal const val MIDDLE_COMPLICATION_LEFT_BOUND = 0.70f
-internal const val MIDDLE_COMPLICATION_RIGHT_BOUND = 0.94f
-
-internal const val BOTTOM_COMPLICATION_TOP_BOUND = 0.68f
-internal const val BOTTOM_COMPLICATION_BOTTOM_BOUND = 0.92f
-internal const val BOTTOM_COMPLICATION_LEFT_BOUND = 0.60f
-internal const val BOTTOM_COMPLICATION_RIGHT_BOUND = 0.84f
+internal val TOP_COMPLICATION_RECT = RectF(0.62f, 0.11f, 0.82f, 0.31f)
+internal val MIDDLE_COMPLICATION_RECT = RectF(0.72f, 0.40f, 0.92f, 0.60f)
+internal val BOTTOM_COMPLICATION_RECT = RectF(0.62f, 0.70f, 0.82f, 0.90f)
 
 internal const val TEXT_ALIGNMENT_FACTOR = 0.025f
 internal const val MAX_TEXT = "88"

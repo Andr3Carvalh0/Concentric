@@ -12,22 +12,13 @@ import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawabl
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import pt.carvalho.concentricplus.R
-import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_BOTTOM_BOUND
-import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_LEFT_BOUND
-import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_RIGHT_BOUND
-import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_TOP_BOUND
-import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_BOTTOM_BOUND
-import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_LEFT_BOUND
-import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_RIGHT_BOUND
-import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_TOP_BOUND
-import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_BOTTOM_BOUND
-import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_LEFT_BOUND
-import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_RIGHT_BOUND
-import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_TOP_BOUND
+import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_RECT
+import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_RECT
+import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_RECT
 
-private const val TOP_COMPLICATION_ID = 0
-private const val MIDDLE_COMPLICATION_ID = 1
-private const val BOTTOM_COMPLICATION_ID = 2
+internal const val TOP_COMPLICATION_ID = 0
+internal const val MIDDLE_COMPLICATION_ID = 1
+internal const val BOTTOM_COMPLICATION_ID = 2
 
 private val COMPLICATIONS_CAPABILITIES = listOf(
     ComplicationType.RANGED_VALUE,
@@ -38,34 +29,19 @@ private val COMPLICATIONS_CAPABILITIES = listOf(
 )
 
 private val COMPLICATIONS: Map<Int, RectF> = mapOf(
-    TOP_COMPLICATION_ID to RectF(
-        TOP_COMPLICATION_LEFT_BOUND,
-        TOP_COMPLICATION_TOP_BOUND,
-        TOP_COMPLICATION_RIGHT_BOUND,
-        TOP_COMPLICATION_BOTTOM_BOUND
-    ),
-    MIDDLE_COMPLICATION_ID to RectF(
-        MIDDLE_COMPLICATION_LEFT_BOUND,
-        MIDDLE_COMPLICATION_TOP_BOUND,
-        MIDDLE_COMPLICATION_RIGHT_BOUND,
-        MIDDLE_COMPLICATION_BOTTOM_BOUND
-    ),
-    BOTTOM_COMPLICATION_ID to RectF(
-        BOTTOM_COMPLICATION_LEFT_BOUND,
-        BOTTOM_COMPLICATION_TOP_BOUND,
-        BOTTOM_COMPLICATION_RIGHT_BOUND,
-        BOTTOM_COMPLICATION_BOTTOM_BOUND
-    )
+    TOP_COMPLICATION_ID to TOP_COMPLICATION_RECT,
+    MIDDLE_COMPLICATION_ID to MIDDLE_COMPLICATION_RECT,
+    BOTTOM_COMPLICATION_ID to BOTTOM_COMPLICATION_RECT
 )
 
 internal object ConcentricComplicationsManager {
 
     fun create(context: Context, repository: CurrentUserStyleRepository): ComplicationSlotsManager {
-        val drawable = ComplicationDrawable.getDrawable(context, R.drawable.complication_icon_style)
-            ?: throw IllegalStateException("Failed to get complications drawable")
-
         return ComplicationSlotsManager(
             COMPLICATIONS.map { (id, rect) ->
+                val drawable = ComplicationDrawable.getDrawable(context, R.drawable.complication_icon_style)
+                    ?: throw IllegalStateException("Failed to get complications drawable")
+
                 ComplicationSlot.createRoundRectComplicationSlotBuilder(
                     id = id,
                     canvasComplicationFactory = { watchState, listener ->

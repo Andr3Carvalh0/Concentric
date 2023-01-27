@@ -10,7 +10,7 @@
     <string name="layout_option_description">Select Complication Layout</string>
 
     <!-- Layout -->
-    <string name="layout_dial_i">DialI</string>
-    <string name="layout_dial_ii">DialII</string>
+    <string name="layout_dial_i">Dial I</string>
+    <string name="layout_dial_ii">Dial II</string>
     <string name="layout_half_dial">Half Dial I</string>
 </resources>
