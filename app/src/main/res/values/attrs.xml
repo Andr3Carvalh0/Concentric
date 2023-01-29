@@ -37,35 +37,12 @@
         <attr name="titleSize" format="dimension" />
         <!-- Defines icon tint color. -->
         <attr name="iconColor" format="color" />
-        <!-- Defines border color. -->
-        <attr name="borderColor" format="color" />
-        <!-- Defines border radius. Padding will be applied to the content to avoid overflow if
-            border radius is not zero. -->
-        <attr name="borderRadius" format="dimension" />
-        <!-- Defines border style. -->
-        <attr name="borderStyle" format="enum">
-            <!-- Do not draw any borders. -->
-            <enum name="none" value="0" />
-            <!-- Draw solid borders. -->
-            <enum name="solid" value="1" />
-            <!-- Draw dashed borders. borderDashWidth and borderDashGap attributes can be used to
-                customize dashed borders. -->
-            <enum name="dashed" value="2" />
-        </attr>
-        <!-- Defines dash width for borders with style 'dashed'. -->
-        <attr name="borderDashWidth" format="dimension" />
-        <!-- Defines dash gap for borders with style 'dashed'. -->
-        <attr name="borderDashGap" format="dimension" />
-        <!-- Defines stroke width for borders. -->
-        <attr name="borderWidth" format="dimension" />
         <!-- Defines stroke width for ranged value indicator. -->
         <attr name="rangedValueRingWidth" format="dimension" />
         <!-- Defines main color for ranged value indicator. -->
         <attr name="rangedValuePrimaryColor" format="color" />
         <!-- Defines secondary color for ranged value indicator. -->
         <attr name="rangedValueSecondaryColor" format="color" />
-        <!-- Defines visibility for ranged value indicator. -->
-        <attr name="rangedValueProgressHidden" format="boolean" />
         <!-- Defines highlight color. -->
         <attr name="highlightColor" format="color" />
     </declare-styleable>

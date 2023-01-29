@@ -17,17 +17,14 @@
 package androidx.wear.watchface.complications.rendering.utils;
 
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getCentralSquare;
-
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
  * Layout helper for {@link ComplicationData#TYPE_SMALL_IMAGE}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SmallImageLayoutHelper extends LayoutHelper {

@@ -55,7 +55,7 @@ internal class ConcentricEditorViewModel(
                 ViewState.Preview(
                     bitmap = bitmaps.first(),
                     complicationsBitmap = bitmaps.last(),
-                    hasComplications = !style.isHalfDialLayout(),
+                    hasComplications = style.isHalfDialLayout(),
                     colors = colors(
                         selectedId = style.selectedColorKey()
                     ),

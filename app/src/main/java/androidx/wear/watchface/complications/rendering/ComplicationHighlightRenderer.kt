@@ -51,7 +51,7 @@ class ComplicationHighlightRenderer(
      * with transparent white. When composited on top of the underlying watchface the complication's
      * original pixels will be preserved with their original brightness.
      */
-    public fun drawComplicationHighlight(
+    fun drawComplicationHighlight(
         canvas: Canvas,
         bounds: Rect,
         @ColorInt color: Int

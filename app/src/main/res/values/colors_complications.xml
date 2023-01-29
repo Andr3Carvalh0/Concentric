@@ -22,7 +22,6 @@
     <color name="complicationDrawable_highlightColor">#4DFFFFFF</color>
     <color name="complicationDrawable_textColor">#FFFFFFFF</color>
     <color name="complicationDrawable_titleColor">#80FFFFFF</color>
-    <color name="complicationDrawable_borderColor">#80000000</color>
     <color name="complicationDrawable_rangedValuePrimaryColor">#FFFFFFFF</color>
     <color name="complicationDrawable_rangedValueSecondaryColor">#80FFFFFF</color>
 </resources>

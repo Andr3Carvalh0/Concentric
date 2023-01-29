@@ -20,7 +20,6 @@ import android.graphics.ColorFilter
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
-import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.SmallImageType
@@ -29,18 +28,6 @@ import androidx.wear.watchface.complications.data.SmallImageType
  * Defines attributes to customize appearance of rendered [ ].
  */
 class ComplicationStyle {
-    /**
-     * Constants used to define border styles for complicationSlots.
-     *
-     * @hide
-     */
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED)
-    @RestrictTo(
-        RestrictTo.Scope.LIBRARY_GROUP
-    )
-    annotation class BorderStyle
-
     /** The background color to be used. */
     @ColorInt
     var backgroundColor: Int = BACKGROUND_COLOR_DEFAULT
@@ -84,24 +71,6 @@ class ComplicationStyle {
     @ColorInt
     private var mIconColor = PRIMARY_COLOR_DEFAULT
 
-    @ColorInt
-    private var mBorderColor = BORDER_COLOR_DEFAULT
-
-    @BorderStyle
-    private var mBorderStyle = BORDER_STYLE_SOLID
-
-    @Px
-    private var mBorderDashWidth = DASH_WIDTH_DEFAULT
-
-    @Px
-    private var mBorderDashGap = DASH_GAP_DEFAULT
-
-    @Px
-    private var mBorderRadius = BORDER_RADIUS_DEFAULT
-
-    @Px
-    private var mBorderWidth = BORDER_WIDTH_DEFAULT
-
     @Px
     private var mRangedValueRingWidth = RING_WIDTH_DEFAULT
 
@@ -131,12 +100,6 @@ class ComplicationStyle {
         mTitleSize = style.titleSize
         mImageColorFilter = style.imageColorFilter
         mIconColor = style.iconColor
-        mBorderColor = style.borderColor
-        mBorderStyle = style.borderStyle
-        mBorderDashWidth = style.borderDashWidth
-        mBorderDashGap = style.borderDashGap
-        mBorderRadius = style.borderRadius
-        mBorderWidth = style.borderWidth
         mRangedValueRingWidth = style.rangedValueRingWidth
         mRangedValuePrimaryColor = style.rangedValuePrimaryColor
         mRangedValueSecondaryColor = style.rangedValueSecondaryColor
@@ -180,69 +143,6 @@ class ComplicationStyle {
         @Px get() = mTitleSize
         set(@Px titleSize) {
             mTitleSize = titleSize
-            isDirty = true
-        }
-
-    /**
-     * The color to render the complication border with.
-     */
-    var borderColor: Int
-        @ColorInt get() = mBorderColor
-        set(@ColorInt borderColor) {
-            mBorderColor = borderColor
-            isDirty = true
-        }
-
-    /**
-     * The style to render the complication border with.
-     */
-    var borderStyle: Int
-        @BorderStyle get() = mBorderStyle
-        set(@BorderStyle borderStyle) {
-            mBorderStyle = when (borderStyle) {
-                BORDER_STYLE_SOLID -> BORDER_STYLE_SOLID
-                BORDER_STYLE_DASHED -> BORDER_STYLE_DASHED
-                else -> BORDER_STYLE_NONE
-            }
-            isDirty = true
-        }
-    /** The dash width to be used when drawing borders of type [.BORDER_STYLE_DASHED]. */
-    var borderDashWidth: Int
-        @Px get() = mBorderDashWidth
-        set(@Px borderDashWidth) {
-            mBorderDashWidth = borderDashWidth
-            isDirty = true
-        }
-
-    /**
-     * The dash gap to be used when drawing borders of type [.BORDER_STYLE_DASHED].
-     */
-    var borderDashGap: Int
-        @Px get() = mBorderDashGap
-        set(@Px borderDashGap) {
-            mBorderDashGap = borderDashGap
-            isDirty = true
-        }
-    /**
-     * The border radius to be applied to the corners of the bounds of the complication in
-     * active mode. Border radius will be limited to the half of width or height, depending
-     * on which one is smaller. If [ComplicationStyle.BORDER_RADIUS_DEFAULT] is returned, border
-     * radius should be reduced to half of the minimum of width or height during the rendering.
-     */
-    var borderRadius: Int
-        @Px get() = mBorderRadius
-        set(@Px borderRadius) {
-            mBorderRadius = borderRadius
-            isDirty = true
-        }
-
-    /**
-     * The width to render the complication border with.
-     */
-    var borderWidth: Int
-        @Px get() = mBorderWidth
-        set(@Px borderWidth) {
-            mBorderWidth = borderWidth
             isDirty = true
         }
 
@@ -305,7 +205,6 @@ class ComplicationStyle {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun asTinted(tintColor: Int): ComplicationStyle = ComplicationStyle(this).apply {
         backgroundColor = tint(backgroundColor, tintColor)
-        borderColor = tint(borderColor, tintColor)
         highlightColor = tint(highlightColor, tintColor)
         iconColor = tint(iconColor, tintColor)
         rangedValuePrimaryColor = tint(rangedValuePrimaryColor, tintColor)
@@ -315,19 +214,6 @@ class ComplicationStyle {
     }
 
     companion object {
-        /** Style where the borders are not drawn.  */
-        const val BORDER_STYLE_NONE: Int = 0
-
-        /** Style where the borders are drawn without any gap.  */
-        const val BORDER_STYLE_SOLID: Int = 1
-
-        /**
-         * Style where the borders are drawn as dashed lines. If this is set as current border
-         * style, dash width and dash gap should also be set via [.setBorderDashWidth],
-         * [.setBorderDashGap] or XML attributes, or default values will be used.
-         */
-        const val BORDER_STYLE_DASHED: Int = 2
-
         /** Default primary color.  */
         private const val PRIMARY_COLOR_DEFAULT = Color.WHITE
 
@@ -340,9 +226,6 @@ class ComplicationStyle {
         /** Default background color.  */
         private const val HIGHLIGHT_COLOR_DEFAULT = Color.LTGRAY
 
-        /** Default border color.  */
-        private const val BORDER_COLOR_DEFAULT = Color.WHITE
-
         /** Default text size.  */
         @Px
         private const val TEXT_SIZE_DEFAULT = Int.MAX_VALUE
@@ -351,25 +234,9 @@ class ComplicationStyle {
         private val TYPEFACE_DEFAULT =
             Typeface.create("sans-serif-condensed", Typeface.NORMAL)
 
-        /** Default dash width.  */
-        @Px
-        private const val DASH_WIDTH_DEFAULT = 3
-
-        /** Default dash gap.  */
-        @Px
-        private const val DASH_GAP_DEFAULT = 3
-
-        /** Default border width.  */
-        @Px
-        private const val BORDER_WIDTH_DEFAULT = 1
-
         /** Default ring width.  */
         @Px
         private const val RING_WIDTH_DEFAULT = 2
-
-        /** Default border radius.  */
-        @Px
-        const val BORDER_RADIUS_DEFAULT: Int = Int.MAX_VALUE
 
         /** Computes the luminance of [color] and applies that to [tint]. */
         internal fun tint(color: Int, tint: Int): Int {

@@ -15,6 +15,7 @@
  */
 package androidx.wear.watchface.complications.rendering
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -178,6 +179,7 @@ import java.time.Instant
  * icon above the short text, but a short text complication with an icon that is drawn on wide
  * rectangular bounds might draw the icon to the left of the short text instead.
  */
+@SuppressLint("RestrictedApi")
 class ComplicationDrawable : Drawable {
     /**
      * Returns the [Context] used to render the complication.
@@ -264,7 +266,6 @@ class ComplicationDrawable : Drawable {
         isLowBitAmbient = drawable.isLowBitAmbient
         isBurnInProtectionOn = drawable.isBurnInProtectionOn
         isHighlighted = false
-        isRangedValueProgressHidden = drawable.isRangedValueProgressHidden
         isInflatedFromXml = drawable.isInflatedFromXml
         alreadyStyled = true
     }
@@ -308,15 +309,7 @@ class ComplicationDrawable : Drawable {
             noDataText = context.getString(R.string.complicationDrawable_noDataText)
         }
         nonNullComplicationRenderer.setNoDataText(noDataText)
-        nonNullComplicationRenderer.isRangedValueProgressHidden = isRangedValueProgressHidden
         nonNullComplicationRenderer.bounds = bounds
-    }
-
-    private fun inflateAttributes(r: Resources, parser: XmlPullParser) {
-        val a = r.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.ComplicationDrawable)
-        isRangedValueProgressHidden =
-            a.getBoolean(R.styleable.ComplicationDrawable_rangedValueProgressHidden, false)
-        a.recycle()
     }
 
     private fun inflateStyle(isAmbient: Boolean, r: Resources, parser: XmlPullParser) {
@@ -378,42 +371,6 @@ class ComplicationDrawable : Drawable {
                 r.getColor(R.color.complicationDrawable_iconColor, null)
             )
         }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderColor)) {
-            complicationStyle.borderColor = a.getColor(
-                R.styleable.ComplicationDrawable_borderColor,
-                r.getColor(R.color.complicationDrawable_borderColor, null)
-            )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderRadius)) {
-            complicationStyle.borderRadius = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderRadius,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)
-            )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderStyle)) {
-            complicationStyle.borderStyle = a.getInt(
-                R.styleable.ComplicationDrawable_borderStyle,
-                r.getInteger(R.integer.complicationDrawable_borderStyle)
-            )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderDashWidth)) {
-            complicationStyle.borderDashWidth = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderDashWidth,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)
-            )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderDashGap)) {
-            complicationStyle.borderDashGap = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderDashGap,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)
-            )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_borderWidth)) {
-            complicationStyle.borderWidth = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderWidth,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)
-            )
-        }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueRingWidth)) {
             complicationStyle.rangedValueRingWidth = a.getDimensionPixelSize(
                 R.styleable.ComplicationDrawable_rangedValueRingWidth,
@@ -468,8 +425,6 @@ class ComplicationDrawable : Drawable {
         isInflatedFromXml = true
         var type: Int
         val outerDepth = parser.depth
-        // Inflate attributes always shared between active and ambient mode
-        inflateAttributes(r, parser)
         // Reset both style builders to default values
         setStyleToDefaultValues(activeStyle, r)
         setStyleToDefaultValues(ambientStyle, r)
@@ -546,18 +501,6 @@ class ComplicationDrawable : Drawable {
         }
     }
 
-    /** If the ranged value progress should be hidden when [ComplicationData] is of type
-     * [RANGED_VALUE].
-     *
-     * @attr ref androidx.wear.watchface.complicationSlots.rendering.R
-     * .styleable#ComplicationDrawable_rangedValueProgressHidden
-     */
-    var isRangedValueProgressHidden: Boolean = false
-        set(rangedValueProgressHidden) {
-            field = rangedValueProgressHidden
-            complicationRenderer?.isRangedValueProgressHidden = rangedValueProgressHidden
-        }
-
     /**
      * Sets the complication data to be drawn.
      *
@@ -577,7 +520,6 @@ class ComplicationDrawable : Drawable {
             // has completed.
             val nextRenderer = ComplicationRenderer(this.context, activeStyle, ambientStyle)
             nextRenderer.setNoDataText(noDataText)
-            nextRenderer.isRangedValueProgressHidden = isRangedValueProgressHidden
             nextRenderer.bounds = bounds
             nextRenderer.setOnInvalidateListener {
                 complicationRenderer = nextRenderer
@@ -755,14 +697,6 @@ class ComplicationDrawable : Drawable {
             style.textSize = r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)
             style.titleSize = r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize)
             style.iconColor = r.getColor(R.color.complicationDrawable_iconColor, null)
-            style.borderColor = r.getColor(R.color.complicationDrawable_borderColor, null)
-            style.borderWidth = r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)
-            style.borderRadius = r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)
-            style.borderStyle = r.getInteger(R.integer.complicationDrawable_borderStyle)
-            style.borderDashWidth =
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)
-            style.borderDashGap =
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)
             style.rangedValueRingWidth =
                 r.getDimensionPixelSize(R.dimen.complicationDrawable_rangedValueRingWidth)
             style.rangedValuePrimaryColor =

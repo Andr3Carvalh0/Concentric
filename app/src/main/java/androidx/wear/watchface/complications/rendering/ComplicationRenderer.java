@@ -23,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.PorterDuff;
@@ -32,14 +31,12 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.graphics.drawable.Icon.OnDrawableLoadedListener;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationText;
 import android.text.Layout;
 import android.text.TextPaint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -47,23 +44,20 @@ import androidx.annotation.VisibleForTesting;
 import androidx.wear.watchface.complications.data.ImageKt;
 import androidx.wear.watchface.complications.data.RangedValueComplicationData;
 import androidx.wear.watchface.complications.rendering.utils.IconLayoutHelper;
-import androidx.wear.watchface.complications.rendering.utils.LargeImageLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LayoutUtils;
-import androidx.wear.watchface.complications.rendering.utils.LongTextLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.RangedValueLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.SmallImageLayoutHelper;
-
 import java.time.Instant;
 import java.util.Objects;
 
 /**
  * Renders complication data on a canvas.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("RestrictedApi")
 class ComplicationRenderer {
 
     public interface OnInvalidateListener {
@@ -82,7 +76,7 @@ class ComplicationRenderer {
 
     /** The gap between the in progress stroke and the remain stroke. */
     @VisibleForTesting
-    static final int STROKE_GAP_IN_DEGREES = 4;
+    static final int STROKE_GAP_IN_DEGREES = 0;
 
     /**
      * Starting angle for ranged value, i.e. in progress part will start from this angle. As it's
@@ -90,6 +84,12 @@ class ComplicationRenderer {
      */
     @VisibleForTesting
     static final int RANGED_VALUE_START_ANGLE = -90;
+
+    static final int RANGED_VALUE_START_ANGLE_NO_ICON = -65;
+
+    static final int RANGED_VALUE_ANGLE = 360;
+
+    static final int RANGED_VALUE_ANGLE_NO_ICON = 310;
 
     /** Size fraction used for drawing icons. 1.0 here means no padding is applied. */
     private static final float ICON_SIZE_FRACTION = 1.0f;
@@ -141,8 +141,6 @@ class ComplicationRenderer {
 
     /** Used to render {@link ComplicationData#TYPE_NO_DATA}. */
     private CharSequence mNoDataText = "";
-
-    private boolean mRangedValueProgressHidden;
 
     private boolean mHasNoData;
 
@@ -386,20 +384,6 @@ class ComplicationRenderer {
         }
     }
 
-    /** Sets if the ranged value progress should be hidden. */
-    public void setRangedValueProgressHidden(boolean hidden) {
-        if (mRangedValueProgressHidden != hidden) {
-            mRangedValueProgressHidden = hidden;
-            calculateBounds();
-        }
-    }
-
-    /** Returns {@code true} if the ranged value progress should be hidden. */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    public boolean isRangedValueProgressHidden() {
-        return mRangedValueProgressHidden;
-    }
-
     /**
      * Renders complication data on a canvas. Does nothing if the current data is null, has type
      * 'empty' or 'not configured', or is not active.
@@ -448,16 +432,19 @@ class ComplicationRenderer {
         // Draw content
         drawIcon(canvas, currentPaintSet, mIsPlaceholderIcon);
         drawSmallImage(canvas, currentPaintSet, mIsPlaceholderSmallImage);
-        drawLargeImage(canvas, currentPaintSet, mIsPlaceholderLargeImage);
-        drawRangedValue(canvas, currentPaintSet, mIsPlaceholderRangedValue);
+
+        if (hasProgressData()) {
+            drawRangedValue(canvas, currentPaintSet, mIsPlaceholderRangedValue);
+        } else {
+            drawOutlineBorder(canvas, currentPaintSet);
+        }
+
         drawMainText(canvas, currentPaintSet, mIsPlaceholderText);
         drawSubText(canvas, currentPaintSet, mIsPlaceholderTitle);
         // Draw highlight if highlighted
         if (showTapHighlight) {
             drawHighlight(canvas, currentPaintSet);
         }
-        // Draw borders last (to ensure that they are always visible)
-        drawBorders(canvas, currentPaintSet);
         canvas.restore();
     }
 
@@ -517,13 +504,6 @@ class ComplicationRenderer {
             mRoundedBackgroundDrawable.draw(canvas);
         } else {
             mRoundedBackgroundDrawable = null;
-        }
-    }
-
-    private void drawBorders(Canvas canvas, PaintSet paintSet) {
-        if (paintSet.mStyle.getBorderStyle() != ComplicationStyle.BORDER_STYLE_NONE) {
-            int radius = getBorderRadius(paintSet.mStyle);
-            canvas.drawRoundRect(mBackgroundBoundsF, radius, radius, paintSet.mBorderPaint);
         }
     }
 
@@ -595,9 +575,6 @@ class ComplicationRenderer {
     }
 
     private void drawRangedValue(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
-        if (mRangedValueBoundsF.isEmpty()) {
-            return;
-        }
         if (DEBUG_MODE) {
             canvas.drawRect(mRangedValueBoundsF, mDebugPaint);
         }
@@ -612,6 +589,8 @@ class ComplicationRenderer {
             rangedValue = 75.0f;
         }
 
+        int range = getIcon() == null ? RANGED_VALUE_ANGLE : RANGED_VALUE_ANGLE_NO_ICON;
+        int startValue = getIcon() == null ? RANGED_VALUE_START_ANGLE : RANGED_VALUE_START_ANGLE_NO_ICON;
         float value =
                 Math.min(rangedMaxValue, Math.max(rangedMinValue, rangedValue)) - rangedMinValue;
         float interval = rangedMaxValue - rangedMinValue;
@@ -619,37 +598,52 @@ class ComplicationRenderer {
 
         // do not need to draw gap in the cases of full circle
         float gap = (progress > 0.0f && progress < 1.0f) ? STROKE_GAP_IN_DEGREES : 0.0f;
-        float inProgressAngle = Math.max(0, 360.0f * progress - gap);
-        float remainderAngle = Math.max(0, 360.0f * (1.0f - progress) - gap);
+        float inProgressAngle = Math.max(0, range * progress - gap);
+        float remainderAngle = Math.max(0, range * (1.0f - progress) - gap);
 
         int insetAmount = (int) Math.ceil(paintSet.mInProgressPaint.getStrokeWidth());
         mRangedValueBoundsF.inset(insetAmount, insetAmount);
 
         if (isPlaceholder) {
             PLACEHOLDER_PROGRESS_PAINT.setStrokeWidth(paintSet.mInProgressPaint.getStrokeWidth());
+        } else {
+            // Draw the remain arc.
+            canvas.drawArc(mRangedValueBoundsF,
+                    startValue + gap / 2.0f + inProgressAngle + gap,
+                remainderAngle,
+                false,
+                paintSet.mRemainingPaint
+            );
         }
 
         // Draw the progress arc.
         canvas.drawArc(
                 mRangedValueBoundsF,
-                RANGED_VALUE_START_ANGLE + gap / 2,
+                startValue + gap / 2,
                 inProgressAngle,
                 false,
                 isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
 
-        // Draw the remain arc.
-        if (!isPlaceholder) {
-            canvas.drawArc(
-                    mRangedValueBoundsF,
-                    RANGED_VALUE_START_ANGLE
-                            + gap / 2.0f
-                            + inProgressAngle
-                            + gap,
-                    remainderAngle,
-                    false,
-                    paintSet.mRemainingPaint);
-        }
         mRangedValueBoundsF.inset(-insetAmount, -insetAmount);
+    }
+
+    private void drawOutlineBorder(Canvas canvas, PaintSet paintSet) {
+        if (DEBUG_MODE) {
+            canvas.drawRect(mBackgroundBoundsF, mDebugPaint);
+        }
+
+        int insetAmount = (int) Math.ceil(paintSet.mRemainingPaint.getStrokeWidth());
+        float start = getIcon() == null ? RANGED_VALUE_START_ANGLE : RANGED_VALUE_START_ANGLE_NO_ICON;
+        float sweep = getIcon() == null ? RANGED_VALUE_ANGLE : RANGED_VALUE_ANGLE_NO_ICON;
+
+        mBackgroundBoundsF.inset(insetAmount, insetAmount);
+        // Draw the progress arc.
+        canvas.drawArc(mBackgroundBoundsF, start, sweep, false, paintSet.mRemainingPaint);
+        mBackgroundBoundsF.inset(-insetAmount, -insetAmount);
+    }
+
+    private boolean hasProgressData() {
+        return !mRangedValueBoundsF.isEmpty();
     }
 
     private void drawIcon(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
@@ -708,29 +702,6 @@ class ComplicationRenderer {
         mRoundedSmallImage.draw(canvas);
     }
 
-    private void drawLargeImage(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
-        if (mLargeImageBounds.isEmpty()) {
-            return;
-        }
-        if (DEBUG_MODE) {
-            canvas.drawRect(mLargeImageBounds, mDebugPaint);
-        }
-        // Draw the image if not in burn in protection mode (in active mode or burn in not enabled)
-        if (!paintSet.isInBurnInProtectionMode()) {
-            if (mRoundedLargeImage == null) {
-                mRoundedLargeImage = new RoundedDrawable();
-            }
-            mRoundedLargeImage.setDrawable(mLargeImage);
-            // Large image is always treated as photo style
-            mRoundedLargeImage.setRadius(getImageBorderRadius(paintSet.mStyle, mLargeImageBounds));
-            mRoundedLargeImage.setBounds(mLargeImageBounds);
-            mRoundedLargeImage.setColorFilter(paintSet.mStyle.getImageColorFilter());
-            mRoundedLargeImage.draw(canvas);
-        } else if (isPlaceholder) {
-            canvas.drawRect(mLargeImageBounds, PLACEHOLDER_PAINT);
-        }
-    }
-
     private static void drawIconOnCanvas(Canvas canvas, Rect bounds, Drawable icon) {
         icon.setBounds(0, 0, bounds.width(), bounds.height());
         canvas.save();
@@ -739,15 +710,7 @@ class ComplicationRenderer {
         canvas.restore();
     }
 
-    private int getBorderRadius(ComplicationStyle currentStyle) {
-        if (mBounds.isEmpty()) {
-            return 0;
-        } else {
-            return Math.min(
-                    Math.min(mBounds.height(), mBounds.width()) / 2,
-                    currentStyle.getBorderRadius());
-        }
-    }
+    private int getBorderRadius(ComplicationStyle currentStyle) { return 0; }
 
     @VisibleForTesting
     int getImageBorderRadius(ComplicationStyle currentStyle, Rect imageBounds) {
@@ -780,27 +743,17 @@ class ComplicationRenderer {
             case ComplicationData.TYPE_SMALL_IMAGE:
                 currentLayoutHelper = new SmallImageLayoutHelper();
                 break;
-            case ComplicationData.TYPE_LARGE_IMAGE:
-                currentLayoutHelper = new LargeImageLayoutHelper();
-                break;
             case ComplicationData.TYPE_SHORT_TEXT:
             case ComplicationData.TYPE_NO_PERMISSION:
                 currentLayoutHelper = new ShortTextLayoutHelper();
                 break;
-            case ComplicationData.TYPE_LONG_TEXT:
-                currentLayoutHelper = new LongTextLayoutHelper();
-                break;
             case ComplicationData.TYPE_RANGED_VALUE:
-                if (mRangedValueProgressHidden) {
-                    if (mComplicationData.getShortText() == null) {
-                        currentLayoutHelper = new IconLayoutHelper();
-                    } else {
-                        currentLayoutHelper = new ShortTextLayoutHelper();
-                    }
-                } else {
-                    currentLayoutHelper = new RangedValueLayoutHelper();
-                }
+                currentLayoutHelper = new RangedValueLayoutHelper();
                 break;
+            case ComplicationData.TYPE_LARGE_IMAGE:
+            case ComplicationData.TYPE_PROTO_LAYOUT:
+            case ComplicationData.TYPE_LIST:
+            case ComplicationData.TYPE_LONG_TEXT:
             case ComplicationData.TYPE_EMPTY:
             case ComplicationData.TYPE_NOT_CONFIGURED:
             case ComplicationData.TYPE_NO_DATA:
@@ -814,32 +767,18 @@ class ComplicationRenderer {
         currentLayoutHelper.getIconBounds(mIconBounds);
         currentLayoutHelper.getSmallImageBounds(mSmallImageBounds);
         currentLayoutHelper.getLargeImageBounds(mLargeImageBounds);
-        Layout.Alignment alignment;
-        if (type == ComplicationData.TYPE_LONG_TEXT) {
-            alignment = currentLayoutHelper.getLongTextAlignment();
-            currentLayoutHelper.getLongTextBounds(mMainTextBounds);
-            mMainTextRenderer.setAlignment(alignment);
-            mMainTextRenderer.setGravity(currentLayoutHelper.getLongTextGravity());
-            currentLayoutHelper.getLongTitleBounds(mSubTextBounds);
-            mSubTextRenderer.setAlignment(currentLayoutHelper.getLongTitleAlignment());
-            mSubTextRenderer.setGravity(currentLayoutHelper.getLongTitleGravity());
-        } else {
-            alignment = currentLayoutHelper.getShortTextAlignment();
-            currentLayoutHelper.getShortTextBounds(mMainTextBounds);
-            mMainTextRenderer.setAlignment(alignment);
-            mMainTextRenderer.setGravity(currentLayoutHelper.getShortTextGravity());
-            currentLayoutHelper.getShortTitleBounds(mSubTextBounds);
-            mSubTextRenderer.setAlignment(currentLayoutHelper.getShortTitleAlignment());
-            mSubTextRenderer.setGravity(currentLayoutHelper.getShortTitleGravity());
-        }
-        if (alignment != Layout.Alignment.ALIGN_CENTER) {
-            float paddingAmount = TEXT_PADDING_HEIGHT_FRACTION * mBounds.height();
-            mMainTextRenderer.setRelativePadding(paddingAmount / mMainTextBounds.width(), 0, 0, 0);
-            mSubTextRenderer.setRelativePadding(paddingAmount / mMainTextBounds.width(), 0, 0, 0);
-        } else {
-            mMainTextRenderer.setRelativePadding(0, 0, 0, 0);
-            mSubTextRenderer.setRelativePadding(0, 0, 0, 0);
-        }
+
+        Layout.Alignment alignment = currentLayoutHelper.getShortTextAlignment();
+        currentLayoutHelper.getShortTextBounds(mMainTextBounds);
+        mMainTextRenderer.setAlignment(alignment);
+        mMainTextRenderer.setGravity(currentLayoutHelper.getShortTextGravity());
+        currentLayoutHelper.getShortTitleBounds(mSubTextBounds);
+        mSubTextRenderer.setAlignment(currentLayoutHelper.getShortTitleAlignment());
+        mSubTextRenderer.setGravity(currentLayoutHelper.getShortTitleGravity());
+
+        mMainTextRenderer.setRelativePadding(0, 0, 0, 0);
+        mSubTextRenderer.setRelativePadding(0, 0, 0, 0);
+
         Rect innerBounds = new Rect();
         LayoutUtils.getInnerBounds(
                 innerBounds,
@@ -909,17 +848,13 @@ class ComplicationRenderer {
             hasImage = true;
             icon.loadDrawableAsync(
                     mContext,
-                    new OnDrawableLoadedListener() {
-                        @Override
-                        @SuppressLint("SyntheticAccessor")
-                        public void onDrawableLoaded(Drawable d) {
-                            if (d == null) {
-                                return;
-                            }
-                            mIcon = d;
-                            mIcon.mutate();
-                            invalidate();
+                    drawable -> {
+                        if (drawable == null) {
+                            return;
                         }
+                        mIcon = drawable;
+                        mIcon.mutate();
+                        invalidate();
                     },
                     handler);
         }
@@ -928,17 +863,13 @@ class ComplicationRenderer {
             hasImage = true;
             burnInProtectionIcon.loadDrawableAsync(
                     mContext,
-                    new OnDrawableLoadedListener() {
-                        @Override
-                        @SuppressLint("SyntheticAccessor")
-                        public void onDrawableLoaded(Drawable d) {
-                            if (d == null) {
-                                return;
-                            }
-                            mBurnInProtectionIcon = d;
-                            mBurnInProtectionIcon.mutate();
-                            invalidate();
+                    drawable -> {
+                        if (drawable == null) {
+                            return;
                         }
+                        mBurnInProtectionIcon = drawable;
+                        mBurnInProtectionIcon.mutate();
+                        invalidate();
                     },
                     handler);
         }
@@ -947,16 +878,12 @@ class ComplicationRenderer {
             hasImage = true;
             smallImage.loadDrawableAsync(
                     mContext,
-                    new OnDrawableLoadedListener() {
-                        @Override
-                        @SuppressLint("SyntheticAccessor")
-                        public void onDrawableLoaded(Drawable d) {
-                            if (d == null) {
-                                return;
-                            }
-                            mSmallImage = d;
-                            invalidate();
+                    drawable -> {
+                        if (drawable == null) {
+                            return;
                         }
+                        mSmallImage = drawable;
+                        invalidate();
                     },
                     handler);
         }
@@ -966,16 +893,12 @@ class ComplicationRenderer {
             hasImage = true;
             burnInProtectionSmallImage.loadDrawableAsync(
                     mContext,
-                    new OnDrawableLoadedListener() {
-                        @Override
-                        @SuppressLint("SyntheticAccessor")
-                        public void onDrawableLoaded(Drawable d) {
-                            if (d == null) {
-                                return;
-                            }
-                            mBurnInProtectionSmallImage = d;
-                            invalidate();
+                    drawable -> {
+                        if (drawable == null) {
+                            return;
                         }
+                        mBurnInProtectionSmallImage = drawable;
+                        invalidate();
                     },
                     handler);
         }
@@ -984,16 +907,12 @@ class ComplicationRenderer {
             hasImage = true;
             largeImage.loadDrawableAsync(
                     mContext,
-                    new OnDrawableLoadedListener() {
-                        @Override
-                        @SuppressLint("SyntheticAccessor")
-                        public void onDrawableLoaded(Drawable d) {
-                            if (d == null) {
-                                return;
-                            }
-                            mLargeImage = d;
-                            invalidate();
+                    drawable -> {
+                        if (drawable == null) {
+                            return;
                         }
+                        mLargeImage = drawable;
+                        invalidate();
                     },
                     handler);
         }
@@ -1063,9 +982,6 @@ class ComplicationRenderer {
         /** Paint for drawing second part of ranged value. */
         final Paint mRemainingPaint;
 
-        /** Paint for drawing borders. */
-        final Paint mBorderPaint;
-
         /** Paint for drawing background. */
         final Paint mBackgroundPaint;
 
@@ -1127,29 +1043,16 @@ class ComplicationRenderer {
             mInProgressPaint = new Paint();
             mInProgressPaint.setColor(style.getRangedValuePrimaryColor());
             mInProgressPaint.setStyle(Paint.Style.STROKE);
+            mInProgressPaint.setStrokeCap(Paint.Cap.ROUND);
             mInProgressPaint.setAntiAlias(antiAlias);
             mInProgressPaint.setStrokeWidth(style.getRangedValueRingWidth());
 
             mRemainingPaint = new Paint();
             mRemainingPaint.setColor(style.getRangedValueSecondaryColor());
             mRemainingPaint.setStyle(Paint.Style.STROKE);
+            mRemainingPaint.setStrokeCap(Paint.Cap.ROUND);
             mRemainingPaint.setAntiAlias(antiAlias);
             mRemainingPaint.setStrokeWidth(style.getRangedValueRingWidth());
-
-            mBorderPaint = new Paint();
-            mBorderPaint.setStyle(Paint.Style.STROKE);
-            mBorderPaint.setColor(style.getBorderColor());
-            if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_DASHED) {
-                mBorderPaint.setPathEffect(
-                        new DashPathEffect(
-                                new float[]{style.getBorderDashWidth(), style.getBorderDashGap()},
-                                0));
-            }
-            if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_NONE) {
-                mBorderPaint.setAlpha(0);
-            }
-            mBorderPaint.setStrokeWidth(style.getBorderWidth());
-            mBorderPaint.setAntiAlias(antiAlias);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(style.getBackgroundColor());
@@ -1278,9 +1181,6 @@ class ComplicationRenderer {
         newStyle.setTextColor(Color.WHITE);
         newStyle.setTitleColor(Color.WHITE);
         newStyle.setIconColor(Color.WHITE);
-        if (style.getBorderColor() != Color.BLACK && style.getBorderColor() != Color.TRANSPARENT) {
-            newStyle.setBorderColor(Color.WHITE);
-        }
         newStyle.setRangedValuePrimaryColor(Color.WHITE);
         if (style.getRangedValueSecondaryColor() != Color.BLACK) {
             newStyle.setRangedValueSecondaryColor(Color.TRANSPARENT);

@@ -45,7 +45,7 @@ import java.time.ZonedDateTime
  * @param invalidateCallback The [CanvasComplication.InvalidateCallback] associated with which can
  * be used to request screen redrawing and to report updates
  */
-public open class CanvasComplicationDrawable
+open class CanvasComplicationDrawable
 @SuppressWarnings("ExecutorRegistration") // invalidateCallback is owned by the library and
 // the callback is thread safe.
 constructor(
@@ -92,7 +92,7 @@ constructor(
     }
 
     /** The [ComplicationDrawable] to render with. */
-    public var drawable: ComplicationDrawable = drawable
+    var drawable: ComplicationDrawable = drawable
         set(value) {
             // Copy the ComplicationData otherwise the complication will be blank until the next
             // update.

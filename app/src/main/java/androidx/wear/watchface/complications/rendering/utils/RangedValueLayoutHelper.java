@@ -23,12 +23,10 @@ import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getTopHalf;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.isWideRectangle;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.scaledAroundCenter;
-
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
 import android.text.Layout;
 import android.view.Gravity;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -118,7 +116,7 @@ public class RangedValueLayoutHelper extends LayoutHelper {
             } else {
                 // Draw a short text complication inside ranged value bounds
                 mShortTextLayoutHelper.getIconBounds(outRect);
-                outRect.offset(mRangedValueInnerSquare.left, mRangedValueInnerSquare.top);
+                outRect.offset(mRangedValueInnerSquare.left, 0);
             }
         }
     }

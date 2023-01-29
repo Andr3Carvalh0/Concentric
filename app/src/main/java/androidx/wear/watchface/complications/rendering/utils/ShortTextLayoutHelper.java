@@ -22,22 +22,23 @@ import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getRightPart;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getTopHalf;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.isWideRectangle;
-
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
 import android.text.Layout;
 import android.view.Gravity;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
  * Layout helper for {@link ComplicationData#TYPE_SHORT_TEXT}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("RestrictedApi")
 public class ShortTextLayoutHelper extends LayoutHelper {
+
+    private final static int MAX_ICON_SIZE = 24;
 
     /** Used to avoid allocating a Rect object whenever needed. */
     private final Rect mBounds = new Rect();
@@ -52,10 +53,10 @@ public class ShortTextLayoutHelper extends LayoutHelper {
                 // Left square part of the inner bounds
                 getLeftPart(outRect, outRect);
             } else {
-                // Use top half of the central square
-                getCentralSquare(outRect, outRect);
-                getTopHalf(outRect, outRect);
-                getCentralSquare(outRect, outRect);
+                do {
+                    getCentralSquare(outRect, outRect);
+                    getTopHalf(outRect, outRect);
+                } while (outRect.height() > MAX_ICON_SIZE);
             }
         }
     }

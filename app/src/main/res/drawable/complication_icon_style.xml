@@ -18,9 +18,7 @@
     class="androidx.wear.watchface.complications.rendering.ComplicationDrawable"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:backgroundColor="@color/background_watch_face_color"
-    app:borderStyle="none"
     app:highlightColor="@color/spearmint"
-    app:rangedValueProgressHidden="false"
     app:iconColor="@color/spearmint"
     app:rangedValuePrimaryColor="@color/spearmint"
     app:rangedValueSecondaryColor="#ff222222"
@@ -34,9 +32,7 @@
 
     <ambient
         app:backgroundColor="@color/background_watch_face_color"
-        app:borderStyle="none"
         app:highlightColor="@color/spearmint"
-        app:rangedValueProgressHidden="false"
         app:iconColor="@color/spearmint"
         app:rangedValuePrimaryColor="@color/spearmint"
         app:rangedValueSecondaryColor="#ff222222"

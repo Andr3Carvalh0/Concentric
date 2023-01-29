@@ -15,8 +15,6 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
-import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import pt.carvalho.concentricplus.R
 import pt.carvalho.concentricplus.renderer.clock.drawBorder
@@ -229,8 +227,8 @@ internal class ConcentricRenderer(
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         configuration.complications.forEach { complication ->
             if (configuration.complicationsTintColorId != lastComplicationColorId) {
-                ComplicationDrawable.getDrawable(context, configuration.complicationsTintColorId)
-                    ?.let { (complication.renderer as? CanvasComplicationDrawable)?.drawable = it }
+            //   ComplicationDrawable.getDrawable(context, configuration.complicationsTintColorId)
+            //        ?.let { (complication.renderer as? CanvasComplicationDrawable)?.drawable = it }
             }
 
             if (complication.enabled) complication.render(canvas, zonedDateTime, renderParameters)

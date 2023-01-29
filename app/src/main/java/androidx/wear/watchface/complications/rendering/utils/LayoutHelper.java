@@ -16,12 +16,12 @@
 
 package androidx.wear.watchface.complications.rendering.utils;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
 import android.text.Layout;
 import android.text.Layout.Alignment;
 import android.view.Gravity;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -30,9 +30,9 @@ import androidx.annotation.RestrictTo;
  * Common superclass for layout helpers. Layout helpers are used to calculate bounds for each
  * element depending on width, height of the complication and complication data.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("RestrictedApi")
 public class LayoutHelper {
 
     private final Rect mBounds = new Rect();

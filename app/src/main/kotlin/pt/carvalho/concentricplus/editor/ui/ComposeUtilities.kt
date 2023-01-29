@@ -15,9 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,7 +42,6 @@ import pt.carvalho.concentricplus.editor.data.ConfigurationOption
 import pt.carvalho.concentricplus.renderer.BOTTOM_COMPLICATION_RECT
 import pt.carvalho.concentricplus.renderer.MIDDLE_COMPLICATION_RECT
 import pt.carvalho.concentricplus.renderer.TOP_COMPLICATION_RECT
-import java.lang.Integer.max
 
 @Composable
 internal fun WatchFacePreview(
@@ -142,10 +142,12 @@ private fun OptionsList(
     state: ScalingLazyListState,
     onItem: (Int, ConfigurationOption) -> Unit
 ) {
-    val index = remember { derivedStateOf { state.centerItemIndex } }
-    val indexValue = max(0, index.value)
-
-    onItem(indexValue, items[indexValue])
+    LaunchedEffect(state) {
+        snapshotFlow { state.centerItemIndex }
+            .collect { index ->
+                onItem(index, items[index])
+            }
+    }
 
     BoxWithConstraints {
         ScalingLazyColumn(

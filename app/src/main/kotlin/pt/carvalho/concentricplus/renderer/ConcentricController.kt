@@ -8,10 +8,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import pt.carvalho.concentricplus.renderer.data.ConcentricConfiguration
 import pt.carvalho.concentricplus.renderer.data.DEFAULT
+import pt.carvalho.concentricplus.utilities.isHalfDialLayout
 import pt.carvalho.concentricplus.utilities.selectedColorValue
 import pt.carvalho.concentricplus.utilities.selectedLayoutValue
 
@@ -27,9 +27,6 @@ internal class ConcentricController(
     init {
         scope.launch(Dispatchers.Main.immediate) {
             styleRepository.userStyle
-                .onStart {
-                    configuration = configuration.copy(complications = complications())
-                }
                 .collect { userStyle -> updateWatchFaceData(userStyle) }
         }
     }
@@ -42,16 +39,11 @@ internal class ConcentricController(
             borderColorId = style.selectedColorValue(),
             complicationsTintColorId = style.selectedColorValue(),
             style = style.selectedLayoutValue(),
-            complications = when (style.selectedLayoutValue()) {
-                ConcentricConfiguration.Style.HALF_DIAL -> complications()
-                else -> emptyList()
-            }
+            complications = if (style.isHalfDialLayout()) complications() else emptyList()
         )
 
         if (updatedConfiguration != configuration) {
-            configuration = updatedConfiguration.copy(
-                complications = emptyList()
-            )
+            configuration = updatedConfiguration
         }
     }
 
