@@ -26,19 +26,16 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-
 import java.util.Objects;
 
 /**
  * Class used to maintain and draw a rounded rectangular image. The given drawable will be drawn in
  * a rounded rectangle within the specified bounds. The image will be cropped.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class RoundedDrawable extends Drawable {

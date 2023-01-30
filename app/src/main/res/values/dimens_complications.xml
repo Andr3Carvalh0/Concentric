@@ -21,6 +21,4 @@
     <dimen name="complicationDrawable_titleSize">14sp</dimen>
     <dimen name="complicationDrawable_rangedValueRingWidth">2dp</dimen>
     <dimen name="progress_thickness">3dp</dimen>
-    <dimen name="complication_text_size">16sp</dimen>
-    <dimen name="complication_title_size">10sp</dimen>
 </resources>

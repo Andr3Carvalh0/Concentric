@@ -7,4 +7,8 @@ object AppConfig {
     const val MINIMUM_SDK = 30
 
     const val APP_ID = "pt.carvalho.concentricplus"
+
+    object Signing {
+        const val ADHOC = "adhoc"
+    }
 }

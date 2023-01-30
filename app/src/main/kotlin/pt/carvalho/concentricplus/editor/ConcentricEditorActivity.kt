@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -52,19 +53,23 @@ class ConcentricEditorActivity : ComponentActivity() {
 
         setContent {
             val viewState = viewModel.state.collectAsState().value
-            val hasComplications = (viewState as? Preview)?.hasComplications ?: true
             val pagerState = rememberPagerState()
+            val pageCount = remember {
+                derivedStateOf {
+                    if ((viewState as? Preview)?.hasComplications == true) {
+                        MAX_TABS_WITH_COMPLICATIONS
+                    } else {
+                        MAX_TABS_WITHOUT_COMPLICATIONS
+                    }
+                }
+            }
 
             val indicatorState = remember {
                 derivedStateOf {
                     object : PageIndicatorState {
                         override val pageOffset: Float = 0.0f
-                        override val pageCount: Int = if (hasComplications) {
-                            MAX_TABS_WITH_COMPLICATIONS
-                        } else {
-                            MAX_TABS_WITHOUT_COMPLICATIONS
-                        }
-                        override val selectedPage: Int = min(pageCount, pagerState.currentPage)
+                        override val pageCount: Int = pageCount.value
+                        override val selectedPage: Int = min(this.pageCount, pagerState.currentPage)
                     }
                 }
             }
@@ -73,6 +78,7 @@ class ConcentricEditorActivity : ComponentActivity() {
                 is Preview -> {
                     ConcentricPreview(
                         value = viewState,
+                        pageCount = pageCount,
                         indicatorState = indicatorState.value,
                         pagerState = pagerState
                     )
@@ -85,6 +91,7 @@ class ConcentricEditorActivity : ComponentActivity() {
     @Composable
     private fun ConcentricPreview(
         value: Preview,
+        pageCount: State<Int>,
         indicatorState: PageIndicatorState,
         pagerState: PagerState
     ) {
@@ -95,7 +102,7 @@ class ConcentricEditorActivity : ComponentActivity() {
         )
 
         HorizontalPager(
-            count = indicatorState.pageCount,
+            count = pageCount.value,
             state = pagerState,
             itemSpacing = 96.dp
         ) {

@@ -15,6 +15,7 @@
  */
 
 package androidx.wear.watchface.complications.rendering.utils;
+
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;

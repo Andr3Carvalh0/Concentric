@@ -16,6 +16,8 @@ gen/
 .classpath
 .project
 
+secrets/
+
 .idea/
 /*/out
 /*/*/build

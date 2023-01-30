@@ -36,11 +36,11 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import java.util.Locale;
 
 /**
  * Renders text onto a canvas.
@@ -91,7 +91,6 @@ import androidx.annotation.VisibleForTesting;
  * <p>TextRenderer also hides characters and styling that may not be suitable for display in ambient
  * mode - for example full color emoji.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextRenderer {
@@ -189,11 +188,11 @@ class TextRenderer {
      * SuperscriptSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and {@link UnderlineSpan}.
      */
     public void setText(@Nullable CharSequence text) {
-        if (mOriginalText == text) {
+        if (mOriginalText == text || text == null) {
             return;
         }
 
-        mOriginalText = text;
+        mOriginalText = text.toString().toUpperCase(Locale.ROOT);
         mText = applySpanAllowlist(mOriginalText);
         mNeedUpdateLayout = true;
     }

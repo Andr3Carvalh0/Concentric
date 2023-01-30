@@ -15,6 +15,8 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import pt.carvalho.concentricplus.R
 import pt.carvalho.concentricplus.renderer.clock.drawBorder
@@ -226,12 +228,29 @@ internal class ConcentricRenderer(
 
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         configuration.complications.forEach { complication ->
-            if (configuration.complicationsTintColorId != lastComplicationColorId) {
-            //   ComplicationDrawable.getDrawable(context, configuration.complicationsTintColorId)
-            //        ?.let { (complication.renderer as? CanvasComplicationDrawable)?.drawable = it }
-            }
+            if (complication.enabled) {
+                ComplicationDrawable.getDrawable(
+                    context,
+                    R.drawable.complication_icon_style
+                )?.apply {
+                    val color = this@ConcentricRenderer.context
+                       .color(configuration.complicationsTintColorId)
 
-            if (complication.enabled) complication.render(canvas, zonedDateTime, renderParameters)
+                    ambientStyle.titleColor = color
+                    ambientStyle.highlightColor = color
+                    ambientStyle.iconColor = color
+                    ambientStyle.rangedValuePrimaryColor = color
+
+                    activeStyle.titleColor = color
+                    activeStyle.highlightColor = color
+                    activeStyle.iconColor = color
+                    activeStyle.rangedValuePrimaryColor = color
+                }?.let {
+                    (complication.renderer as? CanvasComplicationDrawable)?.drawable = it
+                }
+
+                complication.render(canvas, zonedDateTime, renderParameters)
+            }
         }
 
         if (configuration.complications.isNotEmpty()) {

@@ -19,6 +19,36 @@ android {
         compose = true
     }
 
+    signingConfigs {
+        create(AppConfig.Signing.ADHOC) {
+            keyAlias = System.getenv("CONCENTRIC_SIGNING_KEY")
+            keyPassword = System.getenv("CONCENTRIC_SIGNING_PASSWORD")
+            storePassword = System.getenv("CONCENTRIC_SIGNING_PASSWORD")
+            storeFile = rootProject.file("./secrets/release.jks")
+        }
+    }
+
+    buildTypes {
+        getByName(BuildTypes.DEBUG) {
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName(AppConfig.Signing.ADHOC)
+            applicationIdSuffix = ".${BuildTypes.DEBUG}"
+        }
+        getByName(BuildTypes.RELEASE) {
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            matchingFallbacks.add(BuildTypes.RELEASE)
+            signingConfig = signingConfigs.getByName(AppConfig.Signing.ADHOC)
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.3.2"
     }

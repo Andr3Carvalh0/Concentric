@@ -19,14 +19,16 @@ package androidx.wear.watchface.complications.rendering.utils;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getBottomHalf;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getCentralSquare;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getLeftPart;
-import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getRightPart;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getTopHalf;
-import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.isWideRectangle;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.scaledAroundCenter;
+import static androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper.TEXT_OFFSET_BOTTOM;
+import static androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper.TEXT_OFFSET_LEFT;
+import static androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper.TEXT_OFFSET_RIGHT;
+import static androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper.TEXT_OFFSET_TOP;
+
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
 import android.text.Layout;
-import android.view.Gravity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,7 +36,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Layout helper for {@link ComplicationData#TYPE_RANGED_VALUE}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RangedValueLayoutHelper extends LayoutHelper {
@@ -49,7 +50,7 @@ public class RangedValueLayoutHelper extends LayoutHelper {
     private static final float ICON_PADDING_FRACTION = 0.15f;
 
     /** Used to apply padding to ranged value indicator. */
-    private static final float RANGED_VALUE_SIZE_FRACTION = 0.95f;
+    private static final float RANGED_VALUE_SIZE_FRACTION = 1.0f;
 
     /** Used to draw a short text complication inside ranged value for non-wide rectangles. */
     private final ShortTextLayoutHelper mShortTextLayoutHelper = new ShortTextLayoutHelper();
@@ -95,7 +96,7 @@ public class RangedValueLayoutHelper extends LayoutHelper {
     @Override
     public void getRangedValueBounds(@NonNull Rect outRect) {
         getBounds(outRect);
-        if (!hasShortText() || !isWideRectangle(outRect)) {
+        if (!hasShortText()) {
             getCentralSquare(outRect, outRect);
             scaledAroundCenter(outRect, outRect, RANGED_VALUE_SIZE_FRACTION);
         } else {
@@ -110,7 +111,7 @@ public class RangedValueLayoutHelper extends LayoutHelper {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
-            if (!hasShortText() || isWideRectangle(outRect)) {
+            if (!hasShortText()) {
                 // Show only an icon inside ranged value indicator
                 scaledAroundCenter(outRect, mRangedValueInnerSquare, 1 - ICON_PADDING_FRACTION * 2);
             } else {
@@ -125,46 +126,39 @@ public class RangedValueLayoutHelper extends LayoutHelper {
     @Override
     public Layout.Alignment getShortTextAlignment() {
         getBounds(mBounds);
-        if (isWideRectangle(mBounds)) {
-            return Layout.Alignment.ALIGN_NORMAL;
-        } else {
-            // Draw a short text complication inside ranged value bounds
-            return mShortTextLayoutHelper.getShortTextAlignment();
-        }
+        return mShortTextLayoutHelper.getShortTextAlignment();
     }
 
     @Override
     public int getShortTextGravity() {
         getBounds(mBounds);
-        if (isWideRectangle(mBounds)) {
-            if (hasShortTitle()) {
-                return Gravity.BOTTOM;
-            } else {
-                return Gravity.CENTER_VERTICAL;
-            }
-        } else {
-            // Draw as a square short text complication inside ranged value bounds
-            return mShortTextLayoutHelper.getShortTextGravity();
-        }
+        return mShortTextLayoutHelper.getShortTextGravity();
     }
 
     @Override
     public void getShortTextBounds(@NonNull Rect outRect) {
+        getBounds(outRect);
         if (!hasShortText()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
-            if (isWideRectangle(outRect)) {
-                if (!hasShortTitle() || hasIcon()) {
-                    getRightPart(outRect, outRect);
-                } else {
-                    getRightPart(outRect, outRect);
-                    getTopHalf(outRect, outRect);
-                }
+
+            int offsetLeft = (int)((outRect.width() / 2) * TEXT_OFFSET_LEFT);
+            int offsetRight = (int)((outRect.width() / 2) * TEXT_OFFSET_RIGHT);
+            int offsetBottom = (int)((outRect.height() / 2) * TEXT_OFFSET_BOTTOM);
+            int offsetTop = (int)((outRect.height() / 2) * TEXT_OFFSET_TOP);
+
+            if (hasShortTitle()) {
+                outRect.set(
+                        outRect.left + offsetLeft,
+                        outRect.top + offsetTop,
+                        outRect.right - offsetRight,
+                        outRect.bottom - offsetBottom
+                );
+
+                getTopHalf(outRect, outRect);
             } else {
-                // Draw a short text complication inside ranged value bounds
-                mShortTextLayoutHelper.getShortTextBounds(outRect);
-                outRect.offset(mRangedValueInnerSquare.left, mRangedValueInnerSquare.top);
+                getCentralSquare(outRect, outRect);
             }
         }
     }
@@ -177,24 +171,31 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public int getShortTitleGravity() {
-        return Gravity.TOP;
+        return mShortTextLayoutHelper.getShortTitleGravity();
     }
 
     @Override
     public void getShortTitleBounds(@NonNull Rect outRect) {
+        getBounds(outRect);
         // As title is meaningless without text, return empty rectangle in that case too.
         if (!hasShortTitle() || !hasShortText()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
-            if (isWideRectangle(outRect)) {
-                getRightPart(outRect, outRect);
-                getBottomHalf(outRect, outRect);
-            } else {
-                // Draw a short text complication inside ranged value bounds
-                mShortTextLayoutHelper.getShortTitleBounds(outRect);
-                outRect.offset(mRangedValueInnerSquare.left, mRangedValueInnerSquare.top);
-            }
+
+            int offsetLeft = (int)((outRect.width() / 2) * TEXT_OFFSET_LEFT);
+            int offsetRight = (int)((outRect.width() / 2) * TEXT_OFFSET_RIGHT);
+            int offsetBottom = (int)((outRect.height() / 2) * TEXT_OFFSET_BOTTOM);
+            int offsetTop = (int)((outRect.height() / 2) * TEXT_OFFSET_TOP);
+
+            outRect.set(
+                    outRect.left + offsetLeft,
+                    outRect.top + offsetTop,
+                    outRect.right - offsetRight,
+                    outRect.bottom - offsetBottom
+            );
+
+            getBottomHalf(outRect, outRect);
         }
     }
 }

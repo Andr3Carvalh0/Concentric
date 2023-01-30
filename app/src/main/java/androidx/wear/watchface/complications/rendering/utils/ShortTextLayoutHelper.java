@@ -18,10 +18,7 @@ package androidx.wear.watchface.complications.rendering.utils;
 
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getBottomHalf;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getCentralSquare;
-import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getLeftPart;
-import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getRightPart;
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getTopHalf;
-import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.isWideRectangle;
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
@@ -38,10 +35,13 @@ import androidx.annotation.RestrictTo;
 @SuppressLint("RestrictedApi")
 public class ShortTextLayoutHelper extends LayoutHelper {
 
-    private final static int MAX_ICON_SIZE = 24;
+    private final static int MAX_ICON_SIZE = 36;
+    private final static float ICON_Y_BOTTOM_OFFSET = 0.77f;
 
-    /** Used to avoid allocating a Rect object whenever needed. */
-    private final Rect mBounds = new Rect();
+    final static float TEXT_OFFSET_LEFT = 0.4f;
+    final static float TEXT_OFFSET_RIGHT = 0.4f;
+    final static float TEXT_OFFSET_BOTTOM = 0.4f;
+    final static float TEXT_OFFSET_TOP = 0.7f;
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
@@ -49,38 +49,28 @@ public class ShortTextLayoutHelper extends LayoutHelper {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
-            if (isWideRectangle(outRect)) {
-                // Left square part of the inner bounds
-                getLeftPart(outRect, outRect);
-            } else {
-                do {
-                    getCentralSquare(outRect, outRect);
-                    getTopHalf(outRect, outRect);
-                } while (outRect.height() > MAX_ICON_SIZE);
-            }
+            int offsetX = MAX_ICON_SIZE / 2;
+
+            outRect.set(
+                outRect.centerX() - offsetX,
+                    (int)(-1 * (1 - ICON_Y_BOTTOM_OFFSET) * MAX_ICON_SIZE),
+                    outRect.centerX() + offsetX,
+                    (int)(MAX_ICON_SIZE * ICON_Y_BOTTOM_OFFSET)
+            );
         }
     }
 
     @NonNull
     @Override
     public Layout.Alignment getShortTextAlignment() {
-        getBounds(mBounds);
-        if (isWideRectangle(mBounds) && hasIcon()) {
-            // Wide rectangle with an icon available, align normal
-            return Layout.Alignment.ALIGN_NORMAL;
-        } else {
-            // Otherwise, align center
-            return Layout.Alignment.ALIGN_CENTER;
-        }
+        return Layout.Alignment.ALIGN_CENTER;
     }
 
     @Override
     public int getShortTextGravity() {
-        if (hasShortTitle() && !hasIcon()) {
-            // If title is shown, align to bottom.
+        if (hasShortTitle()) {
             return Gravity.BOTTOM;
         } else {
-            // Otherwise, center text vertically
             return Gravity.CENTER_VERTICAL;
         }
     }
@@ -88,20 +78,24 @@ public class ShortTextLayoutHelper extends LayoutHelper {
     @Override
     public void getShortTextBounds(@NonNull Rect outRect) {
         getBounds(outRect);
-        if (hasIcon()) {
-            if (isWideRectangle(outRect)) {
-                // Text to the right of icon
-                getRightPart(outRect, outRect);
-            } else {
-                // Text on bottom half of central square
-                getCentralSquare(outRect, outRect);
-                getBottomHalf(outRect, outRect);
-            }
-        } else if (hasShortTitle()) {
-            // Text above title
+
+        int offsetLeft = (int)((outRect.width() / 2) * TEXT_OFFSET_LEFT);
+        int offsetRight = (int)((outRect.width() / 2) * TEXT_OFFSET_RIGHT);
+        int offsetBottom = (int)((outRect.height() / 2) * TEXT_OFFSET_BOTTOM);
+        int offsetTop = (int)((outRect.height() / 2) * TEXT_OFFSET_TOP);
+
+        if (hasShortTitle()) {
+            outRect.set(
+                    outRect.left + offsetLeft,
+                    outRect.top + ((hasIcon()) ? offsetTop : offsetBottom),
+                    outRect.right - offsetRight,
+                    outRect.bottom - offsetBottom
+            );
+
             getTopHalf(outRect, outRect);
+        } else {
+            getCentralSquare(outRect, outRect);
         }
-        // Text only, no-op here.
     }
 
     @NonNull
@@ -112,16 +106,28 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public int getShortTitleGravity() {
-        return Gravity.TOP;
+        return Gravity.BOTTOM;
     }
 
     @Override
     public void getShortTitleBounds(@NonNull Rect outRect) {
-        if (hasIcon() || !hasShortTitle()) {
+        if (!hasShortTitle()) {
             outRect.setEmpty();
         } else {
-            // Title is always on bottom half
             getBounds(outRect);
+
+            int offsetLeft = (int)((outRect.width() / 2) * TEXT_OFFSET_LEFT);
+            int offsetRight = (int)((outRect.width() / 2) * TEXT_OFFSET_RIGHT);
+            int offsetBottom = (int)((outRect.height() / 2) * TEXT_OFFSET_BOTTOM);
+            int offsetTop = (int)((outRect.height() / 2) * TEXT_OFFSET_TOP);
+
+            outRect.set(
+                    outRect.left + offsetLeft,
+                    outRect.top + ((hasIcon()) ? offsetTop : offsetBottom),
+                    outRect.right - offsetRight,
+                    outRect.bottom - offsetBottom
+            );
+
             getBottomHalf(outRect, outRect);
         }
     }

@@ -40,7 +40,6 @@ import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType.NO_DATA
 import androidx.wear.watchface.complications.data.ComplicationType.NO_PERMISSION
-import androidx.wear.watchface.complications.data.ComplicationType.RANGED_VALUE
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener
 import org.xmlpull.v1.XmlPullParser
@@ -337,22 +336,18 @@ class ComplicationDrawable : Drawable {
                 r.getColor(R.color.complicationDrawable_titleColor, null)
             )
         }
-        if (a.hasValue(R.styleable.ComplicationDrawable_textTypeface)) {
-            complicationStyle.setTextTypeface(
-                Typeface.create(
-                    a.getString(R.styleable.ComplicationDrawable_textTypeface),
-                    Typeface.NORMAL
-                )
+        complicationStyle.setTextTypeface(
+            Typeface.create(
+                context?.resources?.getFont(R.font.product_sans_medium_alt),
+                Typeface.BOLD
             )
-        }
-        if (a.hasValue(R.styleable.ComplicationDrawable_titleTypeface)) {
-            complicationStyle.setTitleTypeface(
-                Typeface.create(
-                    a.getString(R.styleable.ComplicationDrawable_titleTypeface),
-                    Typeface.NORMAL
-                )
+        )
+        complicationStyle.setTitleTypeface(
+            Typeface.create(
+                context?.resources?.getFont(R.font.product_sans_medium_alt),
+                Typeface.BOLD
             )
-        }
+        )
         if (a.hasValue(R.styleable.ComplicationDrawable_textSize)) {
             complicationStyle.textSize = a.getDimensionPixelSize(
                 R.styleable.ComplicationDrawable_textSize,

@@ -25,10 +25,8 @@
     app:rangedValueRingWidth="@dimen/progress_thickness"
     app:textColor="@color/white"
     app:textSize="@dimen/complication_text_size"
-    app:textTypeface="product_sans_medium_alt"
     app:titleColor="@color/spearmint"
-    app:titleSize="@dimen/complication_title_size"
-    app:titleTypeface="product_sans_medium_alt">
+    app:titleSize="@dimen/complication_text_size">
 
     <ambient
         app:backgroundColor="@color/background_watch_face_color"
@@ -39,8 +37,6 @@
         app:rangedValueRingWidth="@dimen/progress_thickness"
         app:textColor="@color/white"
         app:textSize="@dimen/complication_text_size"
-        app:textTypeface="product_sans_medium_alt"
         app:titleColor="@color/spearmint"
-        app:titleSize="@dimen/complication_title_size"
-        app:titleTypeface="product_sans_medium_alt" />
+        app:titleSize="@dimen/complication_text_size" />
 </drawable>

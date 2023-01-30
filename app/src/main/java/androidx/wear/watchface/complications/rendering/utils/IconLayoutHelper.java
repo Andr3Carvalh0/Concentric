@@ -17,6 +17,7 @@
 package androidx.wear.watchface.complications.rendering.utils;
 
 import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.getCentralSquare;
+import static androidx.wear.watchface.complications.rendering.utils.LayoutUtils.scaledAroundCenter;
 import android.graphics.Rect;
 import android.support.wearable.complications.ComplicationData;
 import androidx.annotation.NonNull;
@@ -33,5 +34,6 @@ public class IconLayoutHelper extends LayoutHelper {
     public void getIconBounds(@NonNull Rect outRect) {
         getBounds(outRect);
         getCentralSquare(outRect, outRect);
+        scaledAroundCenter(outRect, outRect, 0.6f);
     }
 }

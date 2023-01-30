@@ -27,10 +27,6 @@
         <attr name="textColor" format="color" />
         <!-- Defines text color for short title and long title fields. -->
         <attr name="titleColor" format="color" />
-        <!-- Defines typeface for short text and long text fields. -->
-        <attr name="textTypeface" format="string" />
-        <!-- Defines typeface for short title and long title fields. -->
-        <attr name="titleTypeface" format="string" />
         <!-- Defines text size for short text and long text fields. -->
         <attr name="textSize" format="dimension" />
         <!-- Defines text size for short title and long title fields. -->

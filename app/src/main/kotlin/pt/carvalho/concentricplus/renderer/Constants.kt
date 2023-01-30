@@ -45,9 +45,9 @@ internal const val BORDER_CLEAR_AREA_RECT_BOTTOM = 0.585f
 internal const val DEFAULT_SCALE_FACTOR = 1.0f
 internal const val ALWAYS_ON_DISPLAY_SCALE_FACTOR = 0.95f
 
-internal val TOP_COMPLICATION_RECT = RectF(0.62f, 0.11f, 0.82f, 0.31f)
-internal val MIDDLE_COMPLICATION_RECT = RectF(0.72f, 0.40f, 0.92f, 0.60f)
-internal val BOTTOM_COMPLICATION_RECT = RectF(0.62f, 0.70f, 0.82f, 0.90f)
+internal val TOP_COMPLICATION_RECT = RectF(0.60f, 0.09f, 0.84f, 0.33f)
+internal val MIDDLE_COMPLICATION_RECT = RectF(0.70f, 0.38f, 0.94f, 0.62f)
+internal val BOTTOM_COMPLICATION_RECT = RectF(0.60f, 0.68f, 0.84f, 0.92f)
 
 internal const val TEXT_ALIGNMENT_FACTOR = 0.025f
 internal const val MAX_TEXT = "88"

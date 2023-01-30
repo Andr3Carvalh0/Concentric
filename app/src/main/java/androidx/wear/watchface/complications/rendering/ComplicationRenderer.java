@@ -72,11 +72,7 @@ class ComplicationRenderer {
      * it's only meant to be true on local builds.
      */
     @VisibleForTesting
-    static final boolean DEBUG_MODE = true;
-
-    /** The gap between the in progress stroke and the remain stroke. */
-    @VisibleForTesting
-    static final int STROKE_GAP_IN_DEGREES = 0;
+    static final boolean DEBUG_MODE = false;
 
     /**
      * Starting angle for ranged value, i.e. in progress part will start from this angle. As it's
@@ -85,14 +81,11 @@ class ComplicationRenderer {
     @VisibleForTesting
     static final int RANGED_VALUE_START_ANGLE = -90;
 
-    static final int RANGED_VALUE_START_ANGLE_NO_ICON = -65;
+    static final int RANGED_VALUE_START_ANGLE_NO_ICON = -55;
 
     static final int RANGED_VALUE_ANGLE = 360;
 
-    static final int RANGED_VALUE_ANGLE_NO_ICON = 310;
-
-    /** Size fraction used for drawing icons. 1.0 here means no padding is applied. */
-    private static final float ICON_SIZE_FRACTION = 1.0f;
+    static final int RANGED_VALUE_ANGLE_NO_ICON = 290;
 
     /**
      * Size fraction used for drawing small image. 0.95 here means image will be 0.95 the size of
@@ -102,9 +95,6 @@ class ComplicationRenderer {
 
     /** Size fraction used for drawing large image. */
     private static final float LARGE_IMAGE_SIZE_FRACTION = 1.0f;
-
-    /** Used to apply padding to the beginning of the text when it's left aligned. */
-    private static final float TEXT_PADDING_HEIGHT_FRACTION = 0.1f;
 
     /** Used to apply a grey color to a placeholder. */
     @VisibleForTesting
@@ -439,12 +429,18 @@ class ComplicationRenderer {
             drawOutlineBorder(canvas, currentPaintSet);
         }
 
-        drawMainText(canvas, currentPaintSet, mIsPlaceholderText);
-        drawSubText(canvas, currentPaintSet, mIsPlaceholderTitle);
+        if (hasTitle()) {
+            drawMainText(canvas, currentPaintSet, mIsPlaceholderText, mSubTextBounds);
+            drawSubText(canvas, currentPaintSet, mIsPlaceholderTitle, mMainTextBounds);
+        } else {
+            drawMainText(canvas, currentPaintSet, mIsPlaceholderText, mMainTextBounds);
+        }
+
         // Draw highlight if highlighted
         if (showTapHighlight) {
             drawHighlight(canvas, currentPaintSet);
         }
+
         canvas.restore();
     }
 
@@ -461,15 +457,23 @@ class ComplicationRenderer {
     private void updateComplicationTexts(long currentTimeMillis) {
         if (mComplicationData.hasShortText()) {
             mMainTextRenderer.setMaxLines(1);
-            mMainTextRenderer.setText(
-                    mComplicationData.getShortText().getTextAt(
-                            mContext.getResources(), currentTimeMillis));
-            if (mComplicationData.getShortTitle() != null) {
-                mSubTextRenderer.setText(
-                        mComplicationData.getShortTitle().getTextAt(
-                                mContext.getResources(), currentTimeMillis));
+            CharSequence text = mComplicationData.getShortText().getTextAt(
+                    mContext.getResources(), currentTimeMillis);
+
+            String[] splitText = text.toString().split(" ");
+
+            if (splitText.length > 1) {
+                mSubTextRenderer.setText(splitText[0]);
+                mMainTextRenderer.setText(splitText[1]);
             } else {
-                mSubTextRenderer.setText("");
+                mMainTextRenderer.setText(text);
+                if (mComplicationData.getShortTitle() != null) {
+                    mSubTextRenderer.setText(
+                            mComplicationData.getShortTitle().getTextAt(
+                                    mContext.getResources(), currentTimeMillis));
+                } else {
+                    mSubTextRenderer.setText("");
+                }
             }
         }
         if (mComplicationData.hasLongText()) {
@@ -515,8 +519,8 @@ class ComplicationRenderer {
         }
     }
 
-    private void drawMainText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
-        if (mMainTextBounds.isEmpty()) {
+    private void drawMainText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder, Rect rect) {
+        if (rect.isEmpty()) {
             return;
         }
         if (DEBUG_MODE) {
@@ -547,12 +551,12 @@ class ComplicationRenderer {
                     mMainTextBounds.width() * 0.05f,
                     mMainTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
         } else {
-            mMainTextRenderer.draw(canvas, mMainTextBounds);
+            mMainTextRenderer.draw(canvas, rect);
         }
     }
 
-    private void drawSubText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
-        if (mSubTextBounds.isEmpty()) {
+    private void drawSubText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder, Rect rect) {
+        if (rect.isEmpty()) {
             return;
         }
         if (DEBUG_MODE) {
@@ -570,7 +574,7 @@ class ComplicationRenderer {
                     mSubTextBounds.right, mSubTextBounds.bottom, mSubTextBounds.width() * 0.05f,
                     mSubTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
         } else {
-            mSubTextRenderer.draw(canvas, mSubTextBounds);
+            mSubTextRenderer.draw(canvas, rect);
         }
     }
 
@@ -597,9 +601,8 @@ class ComplicationRenderer {
         float progress = interval > 0 ? value / interval : 0;
 
         // do not need to draw gap in the cases of full circle
-        float gap = (progress > 0.0f && progress < 1.0f) ? STROKE_GAP_IN_DEGREES : 0.0f;
-        float inProgressAngle = Math.max(0, range * progress - gap);
-        float remainderAngle = Math.max(0, range * (1.0f - progress) - gap);
+        float inProgressAngle = Math.max(0, range * progress);
+        float remainderAngle = Math.max(0, range * (1.0f - progress));
 
         int insetAmount = (int) Math.ceil(paintSet.mInProgressPaint.getStrokeWidth());
         mRangedValueBoundsF.inset(insetAmount, insetAmount);
@@ -608,8 +611,7 @@ class ComplicationRenderer {
             PLACEHOLDER_PROGRESS_PAINT.setStrokeWidth(paintSet.mInProgressPaint.getStrokeWidth());
         } else {
             // Draw the remain arc.
-            canvas.drawArc(mRangedValueBoundsF,
-                    startValue + gap / 2.0f + inProgressAngle + gap,
+            canvas.drawArc(mRangedValueBoundsF, startValue + inProgressAngle,
                 remainderAngle,
                 false,
                 paintSet.mRemainingPaint
@@ -619,7 +621,7 @@ class ComplicationRenderer {
         // Draw the progress arc.
         canvas.drawArc(
                 mRangedValueBoundsF,
-                startValue + gap / 2,
+                startValue,
                 inProgressAngle,
                 false,
                 isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
@@ -645,6 +647,8 @@ class ComplicationRenderer {
     private boolean hasProgressData() {
         return !mRangedValueBoundsF.isEmpty();
     }
+
+    private boolean hasTitle() { return mComplicationData.getShortTitle() != null; }
 
     private void drawIcon(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mIconBounds.isEmpty()) {
@@ -790,12 +794,6 @@ class ComplicationRenderer {
         }
         if (!mSubTextBounds.intersect(innerBounds)) {
             mSubTextBounds.setEmpty();
-        }
-        // Intersect icon bounds with inner bounds and try to keep its center the same
-        if (!mIconBounds.isEmpty()) {
-            // Apply padding to icons
-            LayoutUtils.scaledAroundCenter(mIconBounds, mIconBounds, ICON_SIZE_FRACTION);
-            LayoutUtils.fitSquareToBounds(mIconBounds, innerBounds);
         }
         // Intersect small image with inner bounds and make it a square if image style is icon
         if (!mSmallImageBounds.isEmpty()) {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.yield
 import pt.carvalho.concentricplus.R
 import pt.carvalho.concentricplus.complications.BOTTOM_COMPLICATION_ID
 import pt.carvalho.concentricplus.complications.MIDDLE_COMPLICATION_ID
@@ -27,13 +28,11 @@ import pt.carvalho.concentricplus.complications.TOP_COMPLICATION_ID
 import pt.carvalho.concentricplus.editor.data.ComplicationsOption
 import pt.carvalho.concentricplus.editor.data.ConfigurationOption.ColorOption
 import pt.carvalho.concentricplus.editor.data.ConfigurationOption.LayoutOption
-import pt.carvalho.concentricplus.editor.data.isNotSelected
 import pt.carvalho.concentricplus.style.COLOR_STYLE
 import pt.carvalho.concentricplus.style.ColorStyleOptions
 import pt.carvalho.concentricplus.style.LAYOUT_STYLE
 import pt.carvalho.concentricplus.style.LayoutOptions
 import pt.carvalho.concentricplus.utilities.color
-import pt.carvalho.concentricplus.utilities.isHalfDialLayout
 import pt.carvalho.concentricplus.utilities.selectedColorKey
 import pt.carvalho.concentricplus.utilities.selectedLayoutKey
 
@@ -51,11 +50,12 @@ internal class ConcentricEditorViewModel(
 
         emitAll(
             combine(editor.userStyle, editor.complicationsPreviewData) { style, complications ->
+                yield()
                 val bitmaps = previews(complications = complications)
                 ViewState.Preview(
                     bitmap = bitmaps.first(),
                     complicationsBitmap = bitmaps.last(),
-                    hasComplications = style.isHalfDialLayout(),
+                    hasComplications = true,
                     colors = colors(
                         selectedId = style.selectedColorKey()
                     ),
@@ -72,25 +72,21 @@ internal class ConcentricEditorViewModel(
     )
 
     fun pickColor(option: ColorOption) {
-        option.isNotSelected {
-            Log.v("Andre", "color option: $option")
+        Log.v("Andre", "color option: $option")
 
-            updateOption(
-                userStyleSetting = UserStyleSetting.Id(COLOR_STYLE),
-                userStyleOption = UserStyleSetting.Option.Id(option.id)
-            )
-        }
+        updateOption(
+            userStyleSetting = UserStyleSetting.Id(COLOR_STYLE),
+            userStyleOption = UserStyleSetting.Option.Id(option.id)
+        )
     }
 
     fun pickLayout(option: LayoutOption) {
-        option.isNotSelected {
-            Log.v("Andre", "layout option: $option")
+        Log.v("Andre", "layout option: $option")
 
-            updateOption(
-                userStyleSetting = UserStyleSetting.Id(LAYOUT_STYLE),
-                userStyleOption = UserStyleSetting.Option.Id(option.id)
-            )
-        }
+        updateOption(
+            userStyleSetting = UserStyleSetting.Id(LAYOUT_STYLE),
+            userStyleOption = UserStyleSetting.Option.Id(option.id)
+        )
     }
 
     fun pickComplication(complication: ComplicationsOption) {

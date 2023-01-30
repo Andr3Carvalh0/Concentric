@@ -25,7 +25,3 @@ internal sealed class ConfigurationOption {
         override val isSelected: Boolean
     ) : ConfigurationOption()
 }
-
-internal fun ConfigurationOption.isNotSelected(action: () -> Unit) {
-    if (!isSelected) action()
-}
