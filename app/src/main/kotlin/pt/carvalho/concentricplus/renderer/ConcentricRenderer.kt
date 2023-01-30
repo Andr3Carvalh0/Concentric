@@ -229,24 +229,26 @@ internal class ConcentricRenderer(
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         configuration.complications.forEach { complication ->
             if (complication.enabled) {
-                ComplicationDrawable.getDrawable(
-                    context,
-                    R.drawable.complication_icon_style
-                )?.apply {
-                    val color = this@ConcentricRenderer.context
-                       .color(configuration.complicationsTintColorId)
+                if (lastComplicationColorId != configuration.complicationsTintColorId) {
+                    ComplicationDrawable.getDrawable(
+                        context,
+                        R.drawable.complication_icon_style
+                    )?.apply {
+                        val color = this@ConcentricRenderer.context
+                            .color(configuration.complicationsTintColorId)
 
-                    ambientStyle.titleColor = color
-                    ambientStyle.highlightColor = color
-                    ambientStyle.iconColor = color
-                    ambientStyle.rangedValuePrimaryColor = color
+                        ambientStyle.titleColor = color
+                        ambientStyle.highlightColor = color
+                        ambientStyle.iconColor = color
+                        ambientStyle.rangedValuePrimaryColor = color
 
-                    activeStyle.titleColor = color
-                    activeStyle.highlightColor = color
-                    activeStyle.iconColor = color
-                    activeStyle.rangedValuePrimaryColor = color
-                }?.let {
-                    (complication.renderer as? CanvasComplicationDrawable)?.drawable = it
+                        activeStyle.titleColor = color
+                        activeStyle.highlightColor = color
+                        activeStyle.iconColor = color
+                        activeStyle.rangedValuePrimaryColor = color
+                    }?.let {
+                        (complication.renderer as? CanvasComplicationDrawable)?.drawable = it
+                    }
                 }
 
                 complication.render(canvas, zonedDateTime, renderParameters)

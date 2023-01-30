@@ -38,9 +38,9 @@ public class ShortTextLayoutHelper extends LayoutHelper {
     private final static int MAX_ICON_SIZE = 36;
     private final static float ICON_Y_BOTTOM_OFFSET = 0.77f;
 
-    final static float TEXT_OFFSET_LEFT = 0.4f;
-    final static float TEXT_OFFSET_RIGHT = 0.4f;
-    final static float TEXT_OFFSET_BOTTOM = 0.4f;
+    final static float TEXT_OFFSET_LEFT = 0.38f;
+    final static float TEXT_OFFSET_RIGHT = 0.38f;
+    final static float TEXT_OFFSET_BOTTOM = 0.38f;
     final static float TEXT_OFFSET_TOP = 0.7f;
 
     @Override
