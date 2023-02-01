@@ -19,6 +19,7 @@ import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawabl
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import pt.carvalho.concentricplus.R
+import pt.carvalho.concentricplus.fix.GalaxyWatchFixesUseCase
 import pt.carvalho.concentricplus.renderer.clock.drawBorder
 import pt.carvalho.concentricplus.renderer.clock.drawHours
 import pt.carvalho.concentricplus.renderer.clock.drawMinutes
@@ -30,6 +31,8 @@ import pt.carvalho.concentricplus.utilities.color
 import pt.carvalho.concentricplus.utilities.restoreToCountAfter
 import pt.carvalho.concentricplus.utilities.typeface
 import java.time.ZonedDateTime
+import kotlin.math.cos
+import kotlin.math.sin
 
 internal class ConcentricRenderer(
     private val context: Context,
@@ -53,6 +56,8 @@ internal class ConcentricRenderer(
         styleRepository = styleRepository,
         complicationSlotsManager = complicationSlotsManager
     )
+
+    private val fixesUseCase = GalaxyWatchFixesUseCase()
 
     private val font: Typeface = context.typeface(R.font.product_sans)
     private val alternativeFont: Typeface = context.typeface(R.font.product_sans_medium_alt)
@@ -136,6 +141,7 @@ internal class ConcentricRenderer(
         }
 
         canvas.drawColor(context.color(configuration.backgroundColorId))
+        shift(canvas, zonedDateTime)
 
         canvas.withScale(scale, scale, bounds.exactCenterX(), bounds.exactCenterY()) {
             canvas.restoreToCountAfter {
@@ -149,6 +155,24 @@ internal class ConcentricRenderer(
         }
 
         drawComplications(canvas, zonedDateTime)
+
+        fixesUseCase(
+            context = context,
+            isInAlwaysOnDisplay = isInAlwaysOnDisplay()
+        )
+    }
+
+    private fun shift(
+        canvas: Canvas,
+        zonedDateTime: ZonedDateTime,
+    ) {
+        val cx = sin(
+            (zonedDateTime.minute % MAX_MINUTES) * DIAL_ROTATION_MODIFIER
+        ) * BURN_IN_SHIFT
+        val cy = -cos(
+            (zonedDateTime.minute % MAX_MINUTES) * DIAL_ROTATION_MODIFIER
+        ) * BURN_IN_SHIFT
+        canvas.translate(cx, cy)
     }
 
     override fun onDestroy() = controller.destroy()
@@ -228,31 +252,31 @@ internal class ConcentricRenderer(
 
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         configuration.complications.forEach { complication ->
-            if (complication.enabled) {
-                if (lastComplicationColorId != configuration.complicationsTintColorId) {
-                    ComplicationDrawable.getDrawable(
-                        context,
-                        R.drawable.complication_icon_style
-                    )?.apply {
-                        val color = this@ConcentricRenderer.context
-                            .color(configuration.complicationsTintColorId)
+            if (
+                lastComplicationColorId != configuration.complicationsTintColorId &&
+                complication.enabled
+            ) {
+                ComplicationDrawable.getDrawable(
+                    context,
+                    R.drawable.complication_icon_style
+                )?.apply {
+                    val color = this@ConcentricRenderer.context
+                        .color(configuration.complicationsTintColorId)
 
-                        ambientStyle.titleColor = color
-                        ambientStyle.highlightColor = color
-                        ambientStyle.iconColor = color
-                        ambientStyle.rangedValuePrimaryColor = color
+                    ambientStyle.titleColor = color
+                    ambientStyle.iconColor = color
+                    ambientStyle.rangedValuePrimaryColor = color
 
-                        activeStyle.titleColor = color
-                        activeStyle.highlightColor = color
-                        activeStyle.iconColor = color
-                        activeStyle.rangedValuePrimaryColor = color
-                    }?.let {
-                        (complication.renderer as? CanvasComplicationDrawable)?.drawable = it
-                    }
+                    activeStyle.titleColor = color
+                    activeStyle.iconColor = color
+                    activeStyle.rangedValuePrimaryColor = color
+                }?.let {
+                    (complication.renderer as? CanvasComplicationDrawable)?.drawable = it
                 }
-
-                complication.render(canvas, zonedDateTime, renderParameters)
             }
+
+            if (complication.enabled)
+                complication.render(canvas, zonedDateTime, renderParameters)
         }
 
         if (configuration.complications.isNotEmpty()) {

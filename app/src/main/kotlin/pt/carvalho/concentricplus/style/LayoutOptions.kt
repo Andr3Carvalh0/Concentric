@@ -8,9 +8,9 @@ import pt.carvalho.concentricplus.R
 internal object LayoutOptions {
 
     internal val options = mapOf(
-        R.string.layout_dial_i to R.drawable.preview_analog,
-        R.string.layout_dial_ii to R.drawable.preview_analog,
-        R.string.layout_half_dial to R.drawable.preview_analog
+        R.string.layout_dial_i to R.drawable.preview,
+        R.string.layout_dial_ii to R.drawable.preview,
+        R.string.layout_half_dial to R.drawable.preview
     )
 
     internal fun index(entry: Map.Entry<Int, Int>): String =

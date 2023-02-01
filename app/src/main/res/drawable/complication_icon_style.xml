@@ -17,8 +17,8 @@
 <drawable
     class="androidx.wear.watchface.complications.rendering.ComplicationDrawable"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:backgroundColor="@color/background_watch_face_color"
-    app:highlightColor="@color/spearmint"
+    app:backgroundColor="@android:color/transparent"
+    app:highlightColor="@android:color/transparent"
     app:iconColor="@color/spearmint"
     app:rangedValuePrimaryColor="@color/spearmint"
     app:rangedValueSecondaryColor="#ff222222"
@@ -29,8 +29,8 @@
     app:titleSize="@dimen/complication_text_size">
 
     <ambient
-        app:backgroundColor="@color/background_watch_face_color"
-        app:highlightColor="@color/spearmint"
+        app:backgroundColor="@android:color/transparent"
+        app:highlightColor="@android:color/transparent"
         app:iconColor="@color/spearmint"
         app:rangedValuePrimaryColor="@color/spearmint"
         app:rangedValueSecondaryColor="#ff222222"

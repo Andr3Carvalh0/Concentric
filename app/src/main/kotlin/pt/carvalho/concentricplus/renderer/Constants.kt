@@ -4,6 +4,9 @@ package pt.carvalho.concentricplus.renderer
 
 import android.graphics.RectF
 
+internal const val MAX_SECONDS = 60
+internal const val MAX_MINUTES = 60
+
 internal const val LARGE_FONT_SIZE = 0.215f
 internal const val MEDIUM_FONT_SIZE = 0.102f
 internal const val SMALL_FONT_SIZE = 0.07f
@@ -17,7 +20,7 @@ internal const val MINUTES_X_OFFSET = 1.37f
 internal const val LAYOUT_ALT_CLOCK_SHIFT = 0.357f
 
 internal const val DIAL_MIN_VALUE = 0
-internal const val DIAL_MAX_VALUE = 60
+internal const val DIAL_MAX_VALUE = MAX_SECONDS
 internal const val DIAL_TEXT_MARGIN = 0.043f
 internal const val DIAL_TICKS_STROKE = 3.0f
 internal const val DIAL_TICKS_MAJOR_LENGTH = 0.975f
@@ -54,3 +57,5 @@ internal const val MAX_TEXT = "88"
 
 internal const val A_THOUSAND = 1000f
 internal const val SECONDS_NORMALIZE = 1000000
+
+internal const val BURN_IN_SHIFT = 5.0f

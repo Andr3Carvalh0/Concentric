@@ -94,6 +94,13 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
             getTopHalf(outRect, outRect);
         } else {
+            outRect.set(
+                    outRect.left + offsetLeft,
+                    outRect.top + offsetBottom,
+                    outRect.right - offsetRight,
+                    outRect.bottom - offsetBottom
+            );
+
             getCentralSquare(outRect, outRect);
         }
     }
